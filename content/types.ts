@@ -44,15 +44,16 @@ export interface Site {
   intro: string;
   contact: {
     email?: string;
+    /** Phone number with country code, written as it should be read: '+216 26 191 555'. */
+    whatsapp?: string;
     instagram: { handle: string; href: string };
     /** Short invitation shown on the contact page. */
     invite: string;
   };
   about: {
+    /** First person, plain, no titles and no project names. */
     paragraphs: string[];
-    now: string[];
     /** Set very large on the about page, with work between the words. */
     fields: string[];
-    method: { title: string; text: string }[];
   };
 }

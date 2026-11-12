@@ -1,4 +1,4 @@
-import { esc, pad, picture } from './html.ts';
+import { esc, picture } from './html.ts';
 import { page } from './layout.ts';
 import type { BuildContext, SeriesEntry } from './types.ts';
 
@@ -27,11 +27,7 @@ export function renderAbout(ctx: BuildContext): string {
   <section class="section about__intro">
     <h1 class="section__label">About</h1>
     <div class="about__text">${about.paragraphs.map((p) => `<p>${esc(p)}</p>`).join('')}</div>
-    <div class="about__now">
-      <h2 class="section__sub">Now</h2>
-      ${about.now.map((p) => `<p>${esc(p)}</p>`).join('')}
-    </div>
-    ${portrait ? `<figure class="about__portrait">${picture(portrait, { alt: `Portrait of ${site.name}`, sizes: '(min-width: 800px) 18vw, 50vw', eager: true })}</figure>` : ''}
+    ${portrait ? `<figure class="about__portrait">${picture(portrait, { alt: `Portrait of ${site.name}`, sizes: '(min-width: 800px) 24vw, 64vw', eager: true })}</figure>` : ''}
   </section>
 
   <section class="section">
@@ -40,15 +36,8 @@ export function renderAbout(ctx: BuildContext): string {
   </section>
 
   <section class="section">
-    <h2 class="section__label">Approach</h2>
-    <ol class="method">${about.method
-      .map((step, i) => `<li><span class="method__num">${pad(i + 1)}.</span><h3>${esc(step.title)}</h3><p>${esc(step.text)}</p></li>`)
-      .join('')}</ol>
-  </section>
-
-  <section class="section">
     <h2 class="section__label">Contact</h2>
-    <p class="display"><a class="link" href="/contact/">Start a conversation</a></p>
+    <p class="display"><a class="link" href="/contact/">Say hello</a></p>
   </section>
 </main>`;
 
