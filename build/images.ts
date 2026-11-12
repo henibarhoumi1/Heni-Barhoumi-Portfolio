@@ -13,7 +13,7 @@ import { createHash } from 'node:crypto';
 import { copyFile, mkdir, readdir, readFile, stat, writeFile } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
-import sharp, { type Sharp } from 'sharp';
+import sharp, { type OverlayOptions, type Sharp } from 'sharp';
 
 /** Bump to invalidate every cached image after changing the pipeline. */
 const PIPELINE_VERSION = 8;
@@ -223,12 +223,27 @@ export async function processFolder(
   return pool(files, limit, (file) => processOne(file, series, options, cacheDir, outDir));
 }
 
-/** 1200x630 share image cut from a frame's source file. */
-export async function shareImage(file: string, outFile: string): Promise<void> {
+/**
+ * 1200x630 share card: the lettering in src/brand/share.svg (drawn as outlines,
+ * so no font is needed at build time) with a row of covers set into it.
+ */
+export async function shareImage(cardSvg: string, covers: string[], outFile: string): Promise<void> {
+  const HEIGHT = 250;
+  const TOP = 116;
+  const GAP = 12;
+  let left = 40;
+  const layers: OverlayOptions[] = [];
+  for (const file of covers) {
+    const { data, info } = await sharp(file).resize({ height: HEIGHT }).toBuffer({ resolveWithObject: true });
+    if (left + info.width > 1160) break;
+    layers.push({ input: data, left, top: TOP });
+    left += info.width + GAP;
+  }
   await mkdir(path.dirname(outFile), { recursive: true });
-  await sharp(file, { failOn: 'none' })
-    .rotate()
-    .resize({ width: 1200, height: 630, fit: 'cover', position: 'attention' })
-    .jpeg({ quality: 82, mozjpeg: true })
-    .toFile(outFile);
+  await sharp(cardSvg).composite(layers).flatten({ background: '#ffffff' }).jpeg({ quality: 86, mozjpeg: true }).toFile(outFile);
+}
+
+/** PNG home-screen icon from the SVG favicon. */
+export async function touchIcon(svg: string, outFile: string): Promise<void> {
+  await sharp(svg, { density: 600 }).resize(180, 180).png().toFile(outFile);
 }

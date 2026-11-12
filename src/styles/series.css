@@ -1,4 +1,4 @@
-/* Series page: number, title, credits, then the frames as one even sheet. */
+/* Series page: number, title, credits, then the frames in top-aligned rows of three sizes. */
 
 .series__head {
   padding: 10px var(--pad) clamp(28px, 4vw, 56px);
@@ -35,10 +35,14 @@
 
 .frames {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(12, minmax(0, 1fr));
   gap: clamp(40px, 5vw, 72px) var(--gap);
   align-items: start;
   padding: 0 var(--pad);
+}
+
+.frame {
+  grid-column: span var(--span);
 }
 
 .frame a {
@@ -65,55 +69,58 @@
   text-wrap: pretty;
 }
 
-.next {
+/* Previous and next series, side by side. */
+.pager {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   column-gap: var(--gap);
-  align-items: start;
   margin-top: clamp(64px, 9vw, 136px);
-  padding: 10px var(--pad) clamp(40px, 6vw, 88px);
+  padding: 0 var(--pad);
   border-top: 1px solid var(--black);
 }
 
-.next__label {
+.pager__link {
+  display: block;
+  padding: 10px 0 clamp(40px, 6vw, 88px);
+}
+
+.pager__label {
+  display: block;
+  margin-bottom: clamp(20px, 2.4vw, 36px);
   font: var(--text-small);
   letter-spacing: 0;
 }
 
-.next__title {
-  grid-column: 1 / 4;
-  grid-row: 2;
-  margin-top: clamp(20px, 2.4vw, 36px);
-  font-size: clamp(2.5rem, 7.7vw, 7.5rem);
-  line-height: 0.95;
-  letter-spacing: -0.05em;
+.pager__title {
+  display: block;
+  max-width: 11em;
+  font-size: clamp(1.5rem, 3.9vw, 3.75rem);
+  line-height: 0.98;
+  letter-spacing: -0.045em;
   text-wrap: balance;
 }
 
-.next__cover {
-  grid-column: 4;
-  grid-row: 1 / 3;
-  width: min(100%, 120px);
-}
-
-.next:hover .next__title {
+.pager__link:hover .pager__title,
+.pager__link:focus-visible .pager__title {
   text-decoration: underline;
   text-decoration-thickness: 0.035em;
   text-underline-offset: 0.09em;
 }
 
 @media (max-width: 799px) {
-  .series__meta,
-  .frames {
+  .series__meta {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .frames {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+
+  .frame {
+    grid-column: span var(--span-small);
   }
 
   .series__note {
     padding-right: var(--pad);
-  }
-
-  .next__cover {
-    width: 64px;
-    justify-self: end;
   }
 }

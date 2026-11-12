@@ -72,11 +72,17 @@
   object-fit: contain;
 }
 
+/* Each half of the viewer is a button; its word sits in the bottom corner. */
 .lightbox__nav {
   position: absolute;
   top: var(--bar);
   bottom: 0;
+  display: flex;
+  align-items: flex-end;
   width: 50%;
+  padding: 0 var(--pad) 16px;
+  font: var(--text-small);
+  letter-spacing: 0;
 }
 
 .lightbox__nav--prev {
@@ -86,7 +92,12 @@
 
 .lightbox__nav--next {
   right: 0;
+  justify-content: flex-end;
   cursor: e-resize;
+}
+
+.lightbox[data-single] .lightbox__nav {
+  display: none;
 }
 
 .lightbox__nav:focus-visible {

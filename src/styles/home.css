@@ -1,4 +1,4 @@
-/* Home: the work as a sheet of small numbered images, then one statement. */
+/* Home: the work as a sheet of small numbered images. The statement takes the last cell. */
 
 .works {
   display: grid;
@@ -73,21 +73,32 @@
   background-size: 100% 1px;
 }
 
-.works {
-  padding-bottom: clamp(48px, 7vw, 104px);
-}
-
-.home__intro {
-  padding: 10px var(--pad) clamp(48px, 7vw, 104px);
+/* The statement sits in the sheet like one more entry. */
+.work--note {
+  padding: 10px 0 12px;
   border-top: 1px solid var(--black);
   font: var(--text-lead);
   letter-spacing: -0.025em;
   text-wrap: pretty;
 }
 
+.work--note p {
+  max-width: 19em;
+}
+
+/* Large screens: two rows fill the window exactly, between the masthead and the footer. */
 @media (min-width: 800px) {
-  .home__intro {
-    padding-right: 34vw;
+  .works {
+    grid-auto-rows: max(250px, calc((100dvh - 2 * var(--bar)) / 2));
+  }
+
+  .work__link {
+    height: 100%;
+  }
+
+  .work__media {
+    height: min(12.6vw, 22dvh);
+    min-height: 110px;
   }
 }
 
@@ -103,5 +114,10 @@
   .work__media {
     height: 31vw;
     max-width: 70%;
+  }
+
+  .work--note {
+    grid-column: 1 / -1;
+    padding-bottom: 48px;
   }
 }

@@ -31,6 +31,7 @@
 }
 
 .masthead__name {
+  justify-self: start;
   font-size: 1.125rem;
   letter-spacing: -0.045em;
 }
@@ -46,6 +47,21 @@
   background: linear-gradient(currentColor, currentColor) 0 100% / 0 1px no-repeat;
   padding-bottom: 2px;
   transition: background-size 0.3s var(--ease);
+}
+
+/* Small words, generous targets: the tappable area reaches well past the text. */
+.masthead__name,
+.masthead__nav a,
+.colophon a {
+  position: relative;
+}
+
+.masthead__name::after,
+.masthead__nav a::after,
+.colophon a::after {
+  content: '';
+  position: absolute;
+  inset: -15px -8px;
 }
 
 .masthead__nav a:hover,

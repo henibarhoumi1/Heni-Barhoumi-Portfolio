@@ -65,6 +65,7 @@ ${options.noIndex ? '<meta name="robots" content="noindex">' : ''}
 ${ctx.ogImage ? `<meta property="og:image" content="${esc(site.url + ctx.ogImage)}">\n<meta name="twitter:card" content="summary_large_image">` : ''}
 <meta name="theme-color" content="#ffffff">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <link rel="preload" href="/fonts/heros-regular.woff" as="font" type="font/woff" crossorigin>
 <link rel="preload" href="/fonts/heros-bold.woff" as="font" type="font/woff" crossorigin>
 <link rel="stylesheet" href="${assets.css}">
@@ -92,8 +93,9 @@ ${options.main}
     <button type="button" data-lightbox-close>Close</button>
   </div>
   <div class="lightbox__stage" data-lightbox-stage></div>
-  <button type="button" class="lightbox__nav lightbox__nav--prev" data-lightbox-prev aria-label="Previous image"></button>
-  <button type="button" class="lightbox__nav lightbox__nav--next" data-lightbox-next aria-label="Next image"></button>
+  <button type="button" class="lightbox__nav lightbox__nav--prev" data-lightbox-prev>Previous</button>
+  <button type="button" class="lightbox__nav lightbox__nav--next" data-lightbox-next>Next</button>
+  <div hidden data-lightbox-preload></div>
 </dialog>
 </body>
 </html>

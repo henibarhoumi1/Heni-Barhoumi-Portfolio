@@ -21,7 +21,8 @@
   grid-column: 1;
   grid-row: 2;
   align-self: end;
-  width: min(100% + var(--pad), 340px);
+  /* The file is 576px wide; past this size it softens on high-density screens. */
+  width: min(100% + var(--pad), 296px);
   margin-left: calc(-1 * var(--pad));
 }
 

@@ -2,7 +2,7 @@ import { esc, pad, picture } from './html.ts';
 import { page } from './layout.ts';
 import type { BuildContext } from './types.ts';
 
-/** Home: every series as one small numbered image, then a short statement. */
+/** Home: every series as one small numbered image; the statement takes the last cell. */
 export function renderHome(ctx: BuildContext): string {
   const { site, series } = ctx;
 
@@ -30,8 +30,8 @@ export function renderHome(ctx: BuildContext): string {
   <h1 class="visually-hidden">${esc(site.name)}, selected work</h1>
   <ol class="works">
 ${cells}
+<li class="work work--note" style="--i:${series.length}"><p>${esc(site.intro)}</p></li>
   </ol>
-  <p class="home__intro">${esc(site.intro)}</p>
 </main>`;
 
   return page(ctx, { path: '/', section: 'work', bodyClass: 'page-home', main });

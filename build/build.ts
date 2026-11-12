@@ -3,7 +3,7 @@
  *
  *   npm run build
  */
-import { cp, mkdir, readdir, rm, writeFile } from 'node:fs/promises';
+import { cp, mkdir, rm, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { series as seriesContent } from '../content/series.ts';
@@ -15,7 +15,7 @@ import { renderNotFound } from '../src/templates/not-found.ts';
 import { renderSeries } from '../src/templates/series.ts';
 import type { BuildContext, SeriesEntry } from '../src/templates/types.ts';
 import { bundleAssets } from './assets.ts';
-import { processFolder, shareImage } from './images.ts';
+import { processFolder, shareImage, touchIcon } from './images.ts';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const outDir = path.join(root, 'dist');
@@ -42,17 +42,14 @@ export async function buildSite({ minify = true } = {}): Promise<void> {
   entries.forEach((e, i) => (e.number = i + 1));
   const [portrait] = await processFolder(photosDir, '_portrait', { whiten: true }, cacheDir, outDir);
 
-  // Share image from the first cover
+  // Share card and home-screen icon
   let ogImage: string | undefined;
-  const first = entries[0];
-  if (first) {
-    const dir = path.join(photosDir, first.slug);
-    const file = (await readdir(dir)).find((f) => path.basename(f, path.extname(f)) === first.coverFrame.name);
-    if (file) {
-      await shareImage(path.join(dir, file), path.join(outDir, 'share.jpg'));
-      ogImage = '/share.jpg';
-    }
+  if (entries.length > 0) {
+    const covers = entries.slice(0, 5).map((e) => path.join(outDir, e.coverFrame.jpg.url));
+    await shareImage(path.join(root, 'src', 'brand', 'share.svg'), covers, path.join(outDir, 'share.jpg'));
+    ogImage = '/share.jpg';
   }
+  await touchIcon(path.join(root, 'public', 'favicon.svg'), path.join(outDir, 'apple-touch-icon.png'));
 
   const assets = await bundleAssets(root, outDir, minify);
   const ctx: BuildContext = { site, series: entries, portrait, assets, ogImage, year: new Date().getFullYear() };

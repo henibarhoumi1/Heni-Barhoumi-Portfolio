@@ -12,18 +12,14 @@ export function initLightbox(): void {
   const stage = dialog.querySelector<HTMLElement>('[data-lightbox-stage]');
   const caption = dialog.querySelector<HTMLElement>('[data-lightbox-caption]');
   const count = dialog.querySelector<HTMLElement>('[data-lightbox-count]');
+  const preload = dialog.querySelector<HTMLElement>('[data-lightbox-preload]');
   if (!stage) return;
+  if (links.length === 1) dialog.dataset.single = '';
 
-  let current = 0;
-  const digits = String(links.length).length < 2 ? 2 : String(links.length).length;
-  const pad = (n: number) => String(n).padStart(digits, '0');
-
-  const show = (index: number): void => {
-    current = (index + links.length) % links.length;
-    const link = links[current] as HTMLAnchorElement;
+  /** A copy of a link's picture, sized for the viewer. */
+  const viewerPicture = (link: HTMLAnchorElement): HTMLPictureElement | null => {
     const source = link.querySelector('picture');
-    if (!source) return;
-
+    if (!source) return null;
     const picture = source.cloneNode(true) as HTMLPictureElement;
     picture.querySelectorAll('source').forEach((s) => (s.sizes = '100vw'));
     const img = picture.querySelector('img');
@@ -32,11 +28,30 @@ export function initLightbox(): void {
       img.classList.remove('is-loaded');
       // Keep the image within what the file can carry.
       if (link.dataset.max) img.style.maxWidth = `min(100%, ${link.dataset.max}px)`;
-      watchImage(img);
     }
+    return picture;
+  };
+
+  let current = 0;
+  const digits = String(links.length).length < 2 ? 2 : String(links.length).length;
+  const pad = (n: number) => String(n).padStart(digits, '0');
+
+  const show = (index: number): void => {
+    current = (index + links.length) % links.length;
+    const link = links[current] as HTMLAnchorElement;
+    const picture = viewerPicture(link);
+    if (!picture) return;
+    const img = picture.querySelector('img');
+    if (img) watchImage(img);
     stage.replaceChildren(picture);
     if (caption) caption.textContent = link.dataset.caption ?? '';
     if (count) count.textContent = `${pad(current + 1)} / ${pad(links.length)}`;
+
+    // Fetch the neighbours now so stepping to them is instant.
+    if (preload && links.length > 1) {
+      const neighbours = [links[(current + 1) % links.length], links[(current - 1 + links.length) % links.length]];
+      preload.replaceChildren(...neighbours.flatMap((n) => (n ? [viewerPicture(n)].filter((p) => p !== null) : [])));
+    }
   };
 
   links.forEach((link, index) => {
@@ -67,6 +82,7 @@ export function initLightbox(): void {
 
   dialog.addEventListener('close', () => {
     stage.replaceChildren();
+    preload?.replaceChildren();
     links[current]?.focus({ preventScroll: true });
   });
 }
