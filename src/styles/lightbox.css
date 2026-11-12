@@ -1,0 +1,80 @@
+/* Full-screen frame viewer. */
+
+.lightbox {
+  width: 100vw;
+  height: 100dvh;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: var(--paper);
+  color: var(--ink);
+}
+
+.lightbox::backdrop {
+  background: var(--paper);
+}
+
+.lightbox[open] {
+  display: grid;
+  grid-template-rows: var(--masthead) minmax(0, 1fr);
+}
+
+.lightbox__bar {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: var(--gap);
+  align-items: center;
+  padding: 0 var(--pad);
+}
+
+.lightbox__bar button {
+  justify-self: end;
+  font: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+}
+
+.lightbox__stage {
+  min-height: 0;
+  padding: 0 var(--pad) var(--pad);
+}
+
+.lightbox__stage picture,
+.lightbox__stage img {
+  width: 100%;
+  height: 100%;
+}
+
+.lightbox__stage img {
+  object-fit: contain;
+  background: none !important;
+}
+
+.lightbox__nav {
+  position: absolute;
+  top: var(--masthead);
+  bottom: 0;
+  width: 50%;
+}
+
+.lightbox__nav--prev {
+  left: 0;
+  cursor: w-resize;
+}
+
+.lightbox__nav--next {
+  right: 0;
+  cursor: e-resize;
+}
+
+.lightbox__nav:focus-visible {
+  outline-offset: -6px;
+}
+
+html:has(.lightbox[open]) {
+  overflow: hidden;
+}

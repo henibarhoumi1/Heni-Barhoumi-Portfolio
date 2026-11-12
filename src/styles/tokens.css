@@ -1,0 +1,57 @@
+/* Design tokens. Change the look of the whole site from here. */
+
+@font-face {
+  font-family: 'Inter';
+  src: url('/fonts/inter-regular.woff') format('woff');
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Inter';
+  src: url('/fonts/inter-medium.woff') format('woff');
+  font-weight: 500;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Inter Display';
+  src: url('/fonts/inter-display-semibold.woff') format('woff');
+  font-weight: 600;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Termes';
+  src: url('/fonts/termes-regular.woff') format('woff');
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Termes';
+  src: url('/fonts/termes-italic.woff') format('woff');
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+
+:root {
+  /* Colour: paper, ink, and two greys. The photographs bring the rest. */
+  --paper: #f2f2ee;
+  --ink: #000;
+  --mute: #6e6e68;
+  --rule: #d3d3cd;
+
+  /* Type */
+  --sans: 'Inter', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  --display: 'Inter Display', 'Inter', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  --serif: 'Termes', 'Times New Roman', Times, serif;
+
+  --text-label: 500 0.6875rem/1.3 var(--sans);
+  --text-body: 400 1.0625rem/1.38 var(--serif);
+  --text-small: 400 0.9375rem/1.32 var(--serif);
+
+  /* Space: one tight page margin and one gutter, as in print. */
+  --pad: 14px;
+  --gap: 14px;
+  --masthead: 42px;
+
+  --ease: cubic-bezier(0.2, 0.7, 0, 1);
+}
