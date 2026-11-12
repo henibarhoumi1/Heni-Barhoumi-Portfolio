@@ -110,10 +110,9 @@ button {
   text-decoration-color: currentColor;
 }
 
-/* A page section: hairline, small label, then the content. */
+/* A page section: a small label, then the content. Space alone separates sections. */
 .section {
-  padding: 10px var(--pad) clamp(40px, 6vw, 88px);
-  border-top: 1px solid var(--black);
+  padding: 10px var(--pad) clamp(72px, 10vw, 152px);
 }
 
 .section__label,

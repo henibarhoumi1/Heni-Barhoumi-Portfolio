@@ -77,7 +77,6 @@
   align-items: center;
   height: var(--bar);
   padding: 0 var(--pad);
-  border-top: 1px solid var(--black);
   font: var(--text-small);
   letter-spacing: 0;
 }

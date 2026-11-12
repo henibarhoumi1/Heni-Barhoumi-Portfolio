@@ -1,42 +1,25 @@
-/* About and contact: ruled sections, small labels, very large type. */
+/* About and contact: small labels, very large type, a lot of air. */
 
 /*
- * The portrait is cut by its own left and bottom edges, so it stands in the
- * bottom-left corner of the section: flush with the page edge and resting on
- * the next rule. Its top and right dissolve into the white of the page.
+ * The portrait. The photograph is cut along its left and bottom edges, so
+ * those edges belong on the edges of the window: on large screens it stays in
+ * the bottom-left corner while the page moves beside it; on small screens it
+ * closes the page, standing on its last edge. Its backdrop is processed to
+ * pure white, and multiply keeps it seamless.
  */
-.about__intro {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  grid-template-rows: auto 1fr;
-  column-gap: var(--gap);
-  padding-bottom: 0;
+.portrait {
+  width: 66%;
+  margin-top: 40px;
+  pointer-events: none;
 }
 
-.about__intro .section__label {
-  grid-column: 1 / -1;
-}
-
-.about__portrait {
-  grid-column: 1;
-  grid-row: 2;
-  align-self: end;
-  /* The file is 576px wide; past this size it softens on high-density screens. */
-  width: min(100% + var(--pad), 296px);
-  margin-left: calc(-1 * var(--pad));
-}
-
-/* The backdrop is processed to pure white; multiply keeps it seamless on the page. */
-.about__portrait img {
+.portrait img {
   width: 100%;
   mix-blend-mode: multiply;
 }
 
 .about__text {
-  grid-column: 2 / 4;
-  grid-row: 2;
   max-width: 31em;
-  padding-bottom: clamp(56px, 9vw, 140px);
   font-size: clamp(1.125rem, 1.6vw, 1.5rem);
   line-height: 1.18;
   letter-spacing: -0.022em;
@@ -44,6 +27,41 @@
 
 .about__text p + p {
   margin-top: 0.85em;
+}
+
+@media (min-width: 800px) and (min-height: 520px) {
+  .portrait {
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    z-index: 5;
+    /* The file is 576px wide; past this size it softens on high-density screens. */
+    width: min(25vw - 4px, 300px);
+    margin: 0;
+  }
+
+  /* Everything on the page keeps clear of the portrait's column. */
+  .about .section {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    column-gap: var(--gap);
+  }
+
+  .about .section > * {
+    grid-column: 2 / -1;
+  }
+
+  .about .display {
+    font-size: clamp(2.5rem, 5.9vw, 6rem);
+  }
+
+  .page-about .colophon > :nth-child(1) {
+    grid-column: 2;
+  }
+
+  .page-about .colophon > :nth-child(2) {
+    grid-column: 3;
+  }
 }
 
 /* Fields of work: words and work on the same line. */
@@ -94,23 +112,4 @@
 
 .contact__lines time {
   font-feature-settings: 'tnum';
-}
-
-@media (max-width: 799px) {
-  .about__intro {
-    grid-template-columns: 1fr;
-    grid-template-rows: auto;
-  }
-
-  .about__text {
-    grid-column: 1;
-    grid-row: 2;
-    padding-bottom: 48px;
-  }
-
-  .about__portrait {
-    grid-column: 1;
-    grid-row: 3;
-    width: 66%;
-  }
 }

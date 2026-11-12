@@ -2,7 +2,6 @@
 
 .series__head {
   padding: 10px var(--pad) clamp(28px, 4vw, 56px);
-  border-top: 1px solid var(--black);
 }
 
 .series__num {
@@ -20,8 +19,7 @@
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 18px var(--gap);
-  padding: 10px var(--pad) clamp(40px, 6vw, 88px);
-  border-top: 1px solid var(--black);
+  padding: 0 var(--pad) clamp(40px, 6vw, 88px);
 }
 
 .series__meta dt {
@@ -74,9 +72,8 @@
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   column-gap: var(--gap);
-  margin-top: clamp(64px, 9vw, 136px);
+  margin-top: clamp(88px, 12vw, 184px);
   padding: 0 var(--pad);
-  border-top: 1px solid var(--black);
 }
 
 .pager__link {

@@ -10,7 +10,7 @@ export function renderContact(ctx: BuildContext): string {
     ? `<a class="link" href="https://wa.me/${contact.whatsapp.replace(/\D/g, '')}" rel="noopener">${esc(contact.whatsapp)}</a>`
     : '';
 
-  // One way to reach him per ruled section: a small label, then the address set large.
+  // One way to reach him per section: a small label, then the address set large.
   const ways = [
     contact.email ? { label: 'Email', html: `<a class="link" href="mailto:${esc(contact.email)}">${esc(contact.email)}</a>` } : null,
     whatsapp ? { label: 'WhatsApp', html: whatsapp } : null,

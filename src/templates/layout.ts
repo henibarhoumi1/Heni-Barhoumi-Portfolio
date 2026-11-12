@@ -13,6 +13,8 @@ interface PageOptions {
   /** Class on <body>. */
   bodyClass: string;
   main: string;
+  /** Markup placed after the footer, outside the main content. */
+  after?: string;
   noIndex?: boolean;
 }
 
@@ -86,6 +88,7 @@ ${options.main}
   <span>${esc(site.location.split(',')[0] ?? site.location)} ${localTime(ctx)}</span>
   <a href="${instagram.href}" rel="me noopener">Instagram</a>
 </footer>
+${options.after ?? ''}
 <dialog class="lightbox" data-lightbox-dialog aria-label="Image viewer">
   <div class="lightbox__bar">
     <span data-lightbox-caption></span>

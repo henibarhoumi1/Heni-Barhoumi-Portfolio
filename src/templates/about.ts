@@ -27,7 +27,6 @@ export function renderAbout(ctx: BuildContext): string {
   <section class="section about__intro">
     <h1 class="section__label">About</h1>
     <div class="about__text">${about.paragraphs.map((p) => `<p>${esc(p)}</p>`).join('')}</div>
-    ${portrait ? `<figure class="about__portrait">${picture(portrait, { alt: `Portrait of ${site.name}`, sizes: '(min-width: 800px) 24vw, 64vw', eager: true })}</figure>` : ''}
   </section>
 
   <section class="section">
@@ -48,5 +47,8 @@ export function renderAbout(ctx: BuildContext): string {
     section: 'about',
     bodyClass: 'page-about',
     main,
+    after: portrait
+      ? `<figure class="portrait">${picture(portrait, { alt: `Portrait of ${site.name}`, sizes: '(min-width: 800px) 24vw, 66vw', eager: true })}</figure>`
+      : '',
   });
 }
