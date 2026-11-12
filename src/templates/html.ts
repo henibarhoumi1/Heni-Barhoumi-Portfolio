@@ -25,6 +25,6 @@ export function picture(frame: Frame, { alt, sizes, eager = false, className }: 
   return `<picture${className ? ` class="${className}"` : ''}>
 <source type="image/avif" srcset="${srcset(frame.avif)}" sizes="${esc(sizes)}">
 <source type="image/webp" srcset="${srcset(frame.webp)}" sizes="${esc(sizes)}">
-<img src="${frame.jpg.url}" width="${frame.width}" height="${frame.height}" alt="${esc(alt)}" ${loading} decoding="async" style="background-color:${frame.color}">
+<img src="${frame.jpg.url}" width="${frame.width}" height="${frame.height}" alt="${esc(alt)}" ${loading} decoding="async">
 </picture>`;
 }

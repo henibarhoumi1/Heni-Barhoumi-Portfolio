@@ -13,14 +13,9 @@ export interface Series {
   /** URL segment and folder name under photos/. */
   slug: string;
   title: string;
-  /** Free text, shown as written. e.g. "July 2024". */
-  date: string;
-  /** ISO year-month, used for sorting and metadata. */
-  shot: string;
+  year: number;
   place: string;
   credits: Credit[];
-  /** Camera and lens, shown as written. */
-  kit?: string;
   /** Optional line shown under the frames. */
   note?: string;
   /** Filename (without extension) of the frame used as the cover. Defaults to the first. */
@@ -29,30 +24,35 @@ export interface Series {
   image?: {
     /** Crop solid black bars off the edges before processing. */
     trim?: boolean;
-    /** Upper limit for upscaling small sources. 1 = never upscale. */
+    /** Upper limit for enlarging small sources. Default 1: never. */
     upscale?: number;
   };
 }
 
 export interface Site {
   name: string;
-  /** One line under the name. */
+  /** Shown beside the name. */
   role: string;
   location: string;
-  /** IANA time zone for the clock in the footer. */
+  /** IANA time zone for the clock. */
   timeZone: string;
   /** Production URL, no trailing slash. */
   url: string;
+  /** Search and share description. */
   description: string;
+  /** The statement under the work on the home page. */
+  intro: string;
   contact: {
     email?: string;
     instagram: { handle: string; href: string };
+    /** Short invitation shown on the contact page. */
+    invite: string;
   };
   about: {
-    statement: string[];
-    practice: string[];
+    paragraphs: string[];
+    now: string[];
+    /** Set very large on the about page, with work between the words. */
+    fields: string[];
     method: { title: string; text: string }[];
-    now: { updated: string; items: string[] };
-    collaborate: string;
   };
 }

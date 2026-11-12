@@ -1,4 +1,4 @@
-TeX Gyre Termes (subset, renamed termes-*.woff) — GUST e-foundry.
+TeX Gyre Heros (subset, renamed heros-*.woff). GUST e-foundry.
 
 License: GUST-Font-License
  This is a preliminary version (2006-09-30), barring acceptance from

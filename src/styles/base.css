@@ -7,16 +7,24 @@
 html {
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
-  background: var(--paper);
-  color: var(--ink);
+  background: var(--white);
+  color: var(--black);
 }
 
 body {
   margin: 0;
   min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
   font: var(--text-body);
+  letter-spacing: -0.005em;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
+  font-kerning: normal;
+}
+
+main {
+  flex: 1;
 }
 
 h1,
@@ -29,6 +37,12 @@ dl,
 dd,
 figure {
   margin: 0;
+}
+
+h1,
+h2,
+h3 {
+  font: inherit;
 }
 
 ol,
@@ -47,6 +61,10 @@ img {
   height: auto;
 }
 
+[hidden] {
+  display: none !important;
+}
+
 a {
   color: inherit;
   text-decoration: none;
@@ -62,30 +80,50 @@ button {
 }
 
 :focus-visible {
-  outline: 2px solid var(--ink);
-  outline-offset: 3px;
+  outline: 1px solid var(--black);
+  outline-offset: 4px;
 }
 
 ::selection {
-  background: var(--ink);
-  color: var(--paper);
+  background: var(--black);
+  color: var(--white);
 }
 
-/* Small capitals in the grotesk: navigation, captions, column heads. */
-.label {
-  font: var(--text-label);
-  letter-spacing: 0.025em;
-  text-transform: uppercase;
-  font-feature-settings: 'tnum', 'case';
-}
-
-/* Large grotesk, set tight. */
+/* Very large, regular weight, set tight. */
 .display {
-  font-family: var(--display);
-  font-weight: 600;
-  font-size: clamp(2.75rem, 7.4vw, 7.5rem);
-  line-height: 0.92;
-  letter-spacing: -0.045em;
+  font-weight: 400;
+  font-size: clamp(2.5rem, 7.7vw, 7.5rem);
+  line-height: 0.95;
+  letter-spacing: -0.05em;
+}
+
+/* Links set in large type: a hairline appears under them on hover. */
+.link {
+  text-decoration: underline transparent;
+  text-decoration-thickness: 0.035em;
+  text-underline-offset: 0.09em;
+  transition: text-decoration-color 0.3s ease;
+}
+
+.link:hover,
+.link:focus-visible {
+  text-decoration-color: currentColor;
+}
+
+/* A page section: hairline, small label, then the content. */
+.section {
+  padding: 10px var(--pad) clamp(40px, 6vw, 88px);
+  border-top: 1px solid var(--black);
+}
+
+.section__label,
+.section__sub {
+  font: var(--text-small);
+  letter-spacing: 0;
+}
+
+.section__label {
+  margin-bottom: clamp(20px, 2.4vw, 36px);
 }
 
 .visually-hidden {
@@ -97,13 +135,23 @@ button {
   white-space: nowrap;
 }
 
+/* Images arrive with a short fade instead of popping in. */
+.js img {
+  opacity: 0;
+  transition: opacity 0.6s ease;
+}
+
+.js img.is-loaded {
+  opacity: 1;
+}
+
 /* Page-to-page transitions where the browser supports them. */
 @view-transition {
   navigation: auto;
 }
 
 ::view-transition-group(*) {
-  animation-duration: 0.55s;
+  animation-duration: 0.6s;
   animation-timing-function: var(--ease);
 }
 
@@ -117,5 +165,6 @@ button {
   *::after {
     transition-duration: 0.01ms !important;
     animation-duration: 0.01ms !important;
+    animation-delay: 0s !important;
   }
 }

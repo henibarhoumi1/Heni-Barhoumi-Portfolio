@@ -2,9 +2,9 @@
  * Image pipeline.
  *
  * Every file in photos/<series>/ becomes one "frame": a set of AVIF and WebP
- * files at several widths plus a JPEG fallback. Small sources (Instagram
- * exports) are upscaled a little and lightly sharpened; drop in the original
- * camera files later and the same code simply downscales them.
+ * files at several widths plus a JPEG fallback. Sources are never enlarged
+ * unless a series asks for it; the layout shows images small enough that
+ * Instagram-sized files stay sharp.
  *
  * Results are cached in .cache/images, keyed by the source bytes and the
  * options, so only new or changed photos are re-encoded.
@@ -16,10 +16,10 @@ import path from 'node:path';
 import sharp, { type Sharp } from 'sharp';
 
 /** Bump to invalidate every cached image after changing the pipeline. */
-const PIPELINE_VERSION = 6;
-const WIDTHS = [320, 640, 960, 1280, 1920];
+const PIPELINE_VERSION = 8;
+const WIDTHS = [240, 480, 720, 1080, 1440];
 const MAX_WIDTH = 1920;
-const DEFAULT_UPSCALE = 1.5;
+const DEFAULT_UPSCALE = 1;
 const SOURCE_EXT = new Set(['.jpg', '.jpeg', '.png', '.webp', '.tif', '.tiff', '.avif']);
 
 export interface Variant {
@@ -38,16 +38,18 @@ export interface Frame {
   height: number;
   /** width / height */
   ratio: number;
-  /** Dominant colour, used as the placeholder while the image loads. */
-  color: string;
   avif: Variant[];
   webp: Variant[];
   jpg: Variant;
 }
 
 export interface ImageOptions {
+  /** Crop solid black bars off the edges. */
   trim?: boolean;
+  /** Upper limit for enlarging small sources. Default 1: never. */
   upscale?: number;
+  /** Push a near-white studio background to pure white so it joins the page. */
+  whiten?: boolean;
 }
 
 interface CacheEntry {
@@ -69,8 +71,6 @@ async function pool<T, R>(items: T[], limit: number, worker: (item: T) => Promis
   await Promise.all(Array.from({ length: Math.min(limit, items.length) }, run));
   return results;
 }
-
-const hex = (n: number) => Math.round(n).toString(16).padStart(2, '0');
 
 /**
  * Finds solid black bars (letterbox or frame) on the edges of an image.
@@ -137,6 +137,18 @@ async function processOne(
       const box = await blackBars(base);
       if (box) base = base.extract(box);
     }
+    if (options.whiten) {
+      // Scale each channel so the top-left corner (the backdrop) lands just past white.
+      const corner = await base.clone().extract({ left: 0, top: 0, width: 8, height: 8 }).removeAlpha().raw().toBuffer({ resolveWithObject: true });
+      const channels = corner.info.channels;
+      const mean = [0, 1, 2].map((c) => {
+        let sum = 0;
+        for (let i = c; i < corner.data.length; i += channels) sum += corner.data[i] as number;
+        return sum / (corner.data.length / channels);
+      });
+      const gain = mean.map((m) => 258 / Math.max(m, 1));
+      base = sharp(await base.png({ compressionLevel: 1 }).toBuffer()).linear(gain, [0, 0, 0]);
+    }
     const oriented = await base.toColourspace('srgb').png({ compressionLevel: 1 }).toBuffer({ resolveWithObject: true });
 
     // 2. Master: never above MAX_WIDTH, upscaled at most `upscale` times.
@@ -148,7 +160,6 @@ async function processOne(
     const master = await masterPipe.png({ compressionLevel: 1 }).toBuffer({ resolveWithObject: true });
     const { width, height } = master.info;
 
-    const { dominant } = await sharp(master.data).stats();
     const widths = WIDTHS.filter((w) => w <= width - 80);
     widths.push(width);
 
@@ -171,7 +182,7 @@ async function processOne(
       avif.push(await encode(w, 'avif'));
       webp.push(await encode(w, 'webp'));
     }
-    const jpgWidth = widths.filter((w) => w <= 1280).pop() ?? width;
+    const jpgWidth = widths.filter((w) => w <= 1080).pop() ?? width;
     const jpg = await encode(jpgWidth, 'jpg');
 
     const frame: Frame = {
@@ -181,7 +192,6 @@ async function processOne(
       width,
       height,
       ratio: Number((width / height).toFixed(4)),
-      color: `#${hex(dominant.r)}${hex(dominant.g)}${hex(dominant.b)}`,
       avif,
       webp,
       jpg,

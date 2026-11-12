@@ -9,7 +9,7 @@ import { fileURLToPath } from 'node:url';
 import { series as seriesContent } from '../content/series.ts';
 import { site } from '../content/site.ts';
 import { renderAbout } from '../src/templates/about.ts';
-import { renderFrames } from '../src/templates/frames.ts';
+import { renderContact } from '../src/templates/contact.ts';
 import { renderHome } from '../src/templates/home.ts';
 import { renderNotFound } from '../src/templates/not-found.ts';
 import { renderSeries } from '../src/templates/series.ts';
@@ -40,7 +40,7 @@ export async function buildSite({ minify = true } = {}): Promise<void> {
     entries.push({ ...s, number: 0, frames, coverFrame: cover, path: `/work/${s.slug}/` });
   }
   entries.forEach((e, i) => (e.number = i + 1));
-  const [portrait] = await processFolder(photosDir, '_portrait', { upscale: 1.5 }, cacheDir, outDir);
+  const [portrait] = await processFolder(photosDir, '_portrait', { whiten: true }, cacheDir, outDir);
 
   // Share image from the first cover
   let ogImage: string | undefined;
@@ -60,8 +60,8 @@ export async function buildSite({ minify = true } = {}): Promise<void> {
   // Pages
   const pages = new Map<string, string>();
   pages.set('/', renderHome(ctx));
-  pages.set('/frames/', renderFrames(ctx));
   pages.set('/about/', renderAbout(ctx));
+  pages.set('/contact/', renderContact(ctx));
   for (const entry of entries) pages.set(entry.path, renderSeries(ctx, entry));
 
   for (const [route, html] of pages) {

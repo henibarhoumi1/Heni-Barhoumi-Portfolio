@@ -1,140 +1,107 @@
-/* Home: one strip of covers. The active cover opens to its full frame. */
+/* Home: the work as a sheet of small numbered images, then one statement. */
 
-.home__foot {
+.works {
   display: grid;
-  grid-template-columns: 1fr auto 1fr;
-  gap: var(--gap);
-  align-items: center;
-  height: 48px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  column-gap: var(--gap);
   padding: 0 var(--pad);
 }
 
-.home__count {
-  justify-self: end;
+.work {
+  /* One arrival on load: the cells come in one after another. */
+  animation: arrive 0.9s var(--ease) both;
+  animation-delay: calc(var(--i) * 70ms);
 }
 
-.strip__link {
-  display: block;
+@keyframes arrive {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+}
+
+.work__link {
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  height: clamp(250px, 25vw, 400px);
+  padding: 10px 0 12px;
+  border-top: 1px solid var(--black);
+  font: var(--text-small);
+  letter-spacing: 0;
+}
+
+.work__media {
+  position: relative;
+  place-self: center;
+  /* Sized by height so upright, square and wide frames carry equal weight. */
+  height: clamp(118px, 12.6vw, 200px);
+  aspect-ratio: var(--ar);
+  max-width: 58%;
   overflow: hidden;
 }
 
-.strip__link picture,
-.strip__link img {
-  width: 100%;
-  height: 100%;
+.work__media picture {
+  position: absolute;
+  inset: 0;
 }
 
-.strip__link img {
+.work__media img {
+  width: 100%;
+  height: 100%;
   object-fit: cover;
 }
 
-.strip__caption {
-  display: grid;
-  gap: 2px;
+/* Frames stacked for the hover sequence; only the current one shows. */
+.work__media picture:not(.is-current) {
+  visibility: hidden;
 }
 
-.strip__number {
-  margin-bottom: 12px;
+.work__caption {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--gap);
 }
 
-.strip__meta {
-  color: var(--mute);
+.work__caption > :first-child {
+  background: linear-gradient(currentColor, currentColor) 0 100% / 0 1px no-repeat;
+  padding-bottom: 2px;
+  transition: background-size 0.3s var(--ease);
 }
 
-/* Small screens: the strip becomes a column, every caption visible. */
-@media (max-width: 799px) {
-  .strip {
-    display: grid;
-    gap: 44px;
-    padding: 18px var(--pad) 48px;
-  }
-
-  .strip__item {
-    display: grid;
-    gap: 12px;
-  }
-
-  .strip__link {
-    aspect-ratio: var(--ar);
-  }
-
-  .strip__number {
-    margin-bottom: 4px;
-  }
-
-  .home__foot {
-    grid-template-columns: 1fr;
-    height: auto;
-    gap: 4px;
-    padding-block: 16px;
-    border-top: 1px solid var(--rule);
-  }
-
-  .home__count {
-    display: none;
-  }
+.work__link:hover .work__caption > :first-child,
+.work__link:focus-visible .work__caption > :first-child {
+  background-size: 100% 1px;
 }
 
-/* Larger screens: the whole page is one fixed frame. */
+.works {
+  padding-bottom: clamp(48px, 7vw, 104px);
+}
+
+.home__intro {
+  padding: 10px var(--pad) clamp(48px, 7vw, 104px);
+  border-top: 1px solid var(--black);
+  font: var(--text-lead);
+  letter-spacing: -0.025em;
+  text-wrap: pretty;
+}
+
 @media (min-width: 800px) {
-  .page-home {
-    display: grid;
-    grid-template-rows: var(--masthead) 1fr;
-    height: 100dvh;
-    overflow: hidden;
+  .home__intro {
+    padding-right: 34vw;
+  }
+}
+
+@media (max-width: 799px) {
+  .works {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .home {
-    display: grid;
-    grid-template-rows: 1fr 48px;
-    min-height: 0;
+  .work__link {
+    height: 62vw;
   }
 
-  .strip {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    min-height: 0;
-    padding: 0 var(--pad);
-  }
-
-  .strip__item {
-    /* --ar is the cover's own ratio, set inline. Thumbs are cropped to 4:5. */
-    --h: 17vh;
-    --r: 0.8;
-    position: relative;
-    flex: none;
-    width: calc(var(--h) * var(--r));
-    height: var(--h);
-    transition:
-      width 0.6s var(--ease),
-      height 0.6s var(--ease);
-  }
-
-  .strip__item.is-active {
-    --h: min(54vh, calc(38vw / var(--ar)));
-    --r: var(--ar);
-  }
-
-  .strip__link {
-    width: 100%;
-    height: 100%;
-  }
-
-  .strip__caption {
-    position: absolute;
-    left: 0;
-    bottom: calc(100% + 20px);
-    width: max-content;
-    max-width: 30ch;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.2s;
-  }
-
-  .strip__item.is-active .strip__caption {
-    opacity: 1;
-    transition: opacity 0.35s 0.25s;
+  .work__media {
+    height: 31vw;
+    max-width: 70%;
   }
 }

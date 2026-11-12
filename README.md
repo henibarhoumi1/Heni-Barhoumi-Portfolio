@@ -1,6 +1,6 @@
 # Heni Barhoumi
 
-Personal site of Heni Barhoumi: creative direction, film and photography, Tunis.
+Personal site of Heni Barhoumi, creative director and filmmaker, Tunis.
 
 A static site with its own small build. No framework runtime ships to the browser:
 the pages are plain HTML, one stylesheet and about 3 KB of JavaScript.
@@ -24,14 +24,14 @@ new or changed photos are processed (cache in `.cache/`).
 
 ```
 content/     What the site says. Edit these to change text, credits, order.
-  site.ts      Name, role, contact, the About page copy
+  site.ts      Name, role, contact, the About and Contact page copy
   series.ts    The portrait series, in display order
 photos/      Source images, one folder per series (folder name = series slug)
   _portrait/   The portrait on the About page
 src/
   templates/   One file per page type, plain TypeScript returning HTML
   styles/      CSS. tokens.css holds colours, type and spacing
-  scripts/     Browser code: home strip, frame viewer, clock
+  scripts/     Browser code: hover sequence on the home sheet, image viewer, clock
 build/       The build: image pipeline, bundling, page output, dev server
 public/      Copied as-is: fonts, favicon, Cloudflare _headers
 ```
@@ -50,13 +50,20 @@ stops upscaling as soon as the source is large enough.
 
 **Add an email address.** Uncomment `email` in `content/site.ts`.
 
+## Pages
+
+- `/` the work as a sheet of small numbered images; hovering a series steps through its frames
+- `/work/<slug>/` one series: title, credits, frames, full-screen viewer
+- `/about/` and `/contact/`
+
 ## Images
 
 `build/images.ts` turns each source photo into AVIF and WebP at several widths
-plus a JPEG fallback, and records a dominant colour that is shown while the
-image loads. Sources narrower than 1920 px are upscaled by at most 1.5x
-(Lanczos) with light sharpening. `image.trim` on a series crops solid black
-bars off the edges first.
+plus a JPEG fallback. Sources are never enlarged: the layout shows images small
+enough that Instagram-sized files stay sharp, and the viewer caps each image at
+what its file can carry. `image.trim` on a series crops solid black bars off
+the edges. The About portrait's backdrop is pushed to pure white so it joins
+the page.
 
 ## Deploy
 
@@ -78,6 +85,7 @@ share previews.
 
 ## Fonts
 
-Inter and Inter Display (SIL Open Font License) and TeX Gyre Termes (GUST Font
-License), subset to Latin and self-hosted from `public/fonts/`. Licences are in
-that folder.
+TeX Gyre Heros (a Helvetica-class grotesk, GUST Font License) in regular and
+bold, subset to Latin and self-hosted from `public/fonts/`. The licence is in
+that folder. To use a licensed typeface instead, replace the two files and the
+`@font-face` rules in `src/styles/tokens.css`.

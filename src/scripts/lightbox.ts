@@ -1,5 +1,7 @@
+import { watchImage } from './images.ts';
+
 /**
- * Frame viewer. Any link marked data-lightbox opens its picture full screen
+ * Image viewer. Any link marked data-lightbox opens its picture full screen
  * in the page's <dialog>. Without JavaScript the link simply opens the image.
  */
 export function initLightbox(): void {
@@ -27,7 +29,10 @@ export function initLightbox(): void {
     const img = picture.querySelector('img');
     if (img) {
       img.loading = 'eager';
-      img.removeAttribute('style');
+      img.classList.remove('is-loaded');
+      // Keep the image within what the file can carry.
+      if (link.dataset.max) img.style.maxWidth = `min(100%, ${link.dataset.max}px)`;
+      watchImage(img);
     }
     stage.replaceChildren(picture);
     if (caption) caption.textContent = link.dataset.caption ?? '';
