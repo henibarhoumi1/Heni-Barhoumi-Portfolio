@@ -48,7 +48,7 @@ stops upscaling as soon as the source is large enough.
 
 **Change the cover of a series.** Set `cover: '03'` on the series entry.
 
-**Add an email address.** Uncomment `email` in `content/site.ts`.
+**Change contact details.** Email, WhatsApp and Instagram are in `content/site.ts` under `contact`.
 
 ## Pages
 
