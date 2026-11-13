@@ -1,43 +1,36 @@
-import { esc, picture } from './html.ts';
+import { canFill, capOf, esc, picture } from './html.ts';
 import { page } from './layout.ts';
-import type { BuildContext, SeriesEntry } from './types.ts';
+import type { BuildContext } from './types.ts';
 
+/**
+ * About: the portrait holds the left half of the window while the words
+ * move through the right. The first sentence, when it is short, is set large
+ * in the editorial voice; the words themselves are Heni's, unchanged.
+ */
 export function renderAbout(ctx: BuildContext): string {
-  const { site, portrait, series } = ctx;
-  const { about } = site;
+  const { site, portrait } = ctx;
+  const [first = '', ...more] = site.about.paragraphs;
+  const split = first.match(/^(.{1,40}?[.!?])\s+(.+)$/);
+  const opening = split ? (split[1] as string) : first;
+  const lead = split ? (split[2] as string) : '';
 
-  // Fields of work, set very large, with covers from the work placed between the words.
-  const covers = [...series];
-  const thumb = (s: SeriesEntry | undefined) =>
-    s
-      ? `<a class="fields__image" href="${s.path}" style="--ar:${s.coverFrame.ratio}" aria-label="${esc(s.title)}">${picture(s.coverFrame, { alt: '', sizes: '8vw' })}</a>`
-      : '';
-  // How many images follow each field, in order. Reads as a rhythm: 2, 0, 1, 1, 0, 2, 1.
-  const rhythm = [2, 0, 1, 1, 0, 2, 1];
-  const fields = about.fields
-    .map((field, i) => {
-      const last = i === about.fields.length - 1;
-      const count = rhythm[i % rhythm.length] ?? 0;
-      const images = Array.from({ length: count }, () => thumb(covers.shift())).join('');
-      return `<span class="fields__word">${esc(field)}${last ? '.' : ','}</span> ${images}`;
-    })
-    .join(' ');
+  // A file large enough to fill the half is shown edge to edge; a small one
+  // stands on the bottom-left corner, where its own cut edges are.
+  const fill = portrait ? canFill(portrait) : false;
+  const figure = portrait
+    ? `<figure class="about__portrait${fill ? ' is-fill' : ''}" style="--cap:${capOf(portrait)}px;--ar:${portrait.ratio}">
+    ${picture(portrait, { alt: `Portrait of ${site.name}`, sizes: fill ? '(min-width: 800px) 50vw, 100vw' : `(min-width: 800px) ${capOf(portrait)}px, 100vw`, eager: true })}
+  </figure>`
+    : '';
 
   const main = `<main id="main" class="about">
-  <section class="section about__intro">
-    <h1 class="section__label">About</h1>
-    <div class="about__text">${about.paragraphs.map((p) => `<p>${esc(p)}</p>`).join('')}</div>
-  </section>
-
-  <section class="section">
-    <h2 class="section__label">Fields of work</h2>
-    <p class="fields display">${fields}</p>
-  </section>
-
-  <section class="section">
-    <h2 class="section__label">Contact</h2>
-    <p class="display"><a class="link" href="/contact/">Say hello</a></p>
-  </section>
+  ${figure}
+  <div class="about__text">
+    <h1 class="visually-hidden">About ${esc(site.name)}</h1>
+    <p class="about__opening">${esc(opening)}</p>
+    ${lead ? `<p class="about__lead">${esc(lead)}</p>` : ''}
+    ${more.map((p) => `<p>${esc(p)}</p>`).join('\n    ')}
+  </div>
 </main>`;
 
   return page(ctx, {
@@ -47,8 +40,5 @@ export function renderAbout(ctx: BuildContext): string {
     section: 'about',
     bodyClass: 'page-about',
     main,
-    after: portrait
-      ? `<figure class="portrait">${picture(portrait, { alt: `Portrait of ${site.name}`, sizes: '(min-width: 800px) 24vw, 66vw', eager: true })}</figure>`
-      : '',
   });
 }

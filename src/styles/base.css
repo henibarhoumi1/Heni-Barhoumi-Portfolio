@@ -7,8 +7,13 @@
 html {
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
-  background: var(--white);
-  color: var(--black);
+  background: var(--room);
+  color: var(--ink);
+  color-scheme: light;
+}
+
+html.room-dark {
+  color-scheme: dark;
 }
 
 body {
@@ -16,8 +21,7 @@ body {
   min-height: 100dvh;
   display: flex;
   flex-direction: column;
-  font: var(--text-body);
-  letter-spacing: -0.005em;
+  font: var(--read);
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
   font-kerning: normal;
@@ -35,7 +39,8 @@ ol,
 ul,
 dl,
 dd,
-figure {
+figure,
+blockquote {
   margin: 0;
 }
 
@@ -52,12 +57,14 @@ ul {
 }
 
 img,
-picture {
+picture,
+video {
   display: block;
   max-width: 100%;
 }
 
-img {
+img,
+video {
   height: auto;
 }
 
@@ -80,49 +87,13 @@ button {
 }
 
 :focus-visible {
-  outline: 2px solid var(--black);
+  outline: 2px solid currentColor;
   outline-offset: 4px;
 }
 
 ::selection {
-  background: var(--black);
-  color: var(--white);
-}
-
-/* Very large, regular weight, set tight. */
-.display {
-  font-weight: 400;
-  font-size: clamp(2.5rem, 7.7vw, 7.5rem);
-  line-height: 0.95;
-  letter-spacing: -0.05em;
-}
-
-/* Links set in large type: a hairline appears under them on hover. */
-.link {
-  text-decoration: underline transparent;
-  text-decoration-thickness: 0.035em;
-  text-underline-offset: 0.09em;
-  transition: text-decoration-color 0.3s ease;
-}
-
-.link:hover,
-.link:focus-visible {
-  text-decoration-color: currentColor;
-}
-
-/* A page section: a small label, then the content. Space alone separates sections. */
-.section {
-  padding: 10px var(--pad) clamp(72px, 10vw, 152px);
-}
-
-.section__label,
-.section__sub {
-  font: var(--text-small);
-  letter-spacing: 0;
-}
-
-.section__label {
-  margin-bottom: clamp(20px, 2.4vw, 36px);
+  background: var(--ink);
+  color: var(--room);
 }
 
 .visually-hidden {
@@ -134,24 +105,75 @@ button {
   white-space: nowrap;
 }
 
-/* Images arrive with a short fade instead of popping in. */
+/* The skip link appears only for keyboard users. */
+.skip {
+  position: absolute;
+  left: var(--pad);
+  top: -100px;
+  z-index: 60;
+  padding: 12px 14px;
+  background: var(--ink);
+  color: var(--room);
+  font: var(--fact);
+}
+
+.skip:focus {
+  top: 8px;
+}
+
+/* Underlines appear on hover, drawn from the text's own colour. */
+.u {
+  text-decoration: underline;
+  text-decoration-color: transparent;
+  text-decoration-thickness: 0.06em;
+  text-underline-offset: 0.12em;
+  transition: text-decoration-color var(--fast) var(--ease);
+}
+
+/* Images arrive with a short fade once they have loaded. */
 .js img {
   opacity: 0;
-  transition: opacity 0.6s ease;
+  transition: opacity var(--base) var(--ease);
 }
 
 .js img.is-loaded {
   opacity: 1;
 }
 
-/* Page-to-page transitions where the browser supports them. */
+/*
+ * Page changes. Most are a quick dissolve. Entering a project takes longer:
+ * the new room fades in over the old one, like the house lights going down,
+ * while the chosen image travels into place.
+ */
 @view-transition {
   navigation: auto;
 }
 
-::view-transition-group(*) {
-  animation-duration: 0.6s;
+::view-transition-group(*),
+::view-transition-old(*),
+::view-transition-new(*) {
+  animation-duration: var(--base);
   animation-timing-function: var(--ease);
+}
+
+html.is-project::view-transition-group(*),
+html.is-project::view-transition-old(*),
+html.is-project::view-transition-new(*) {
+  animation-duration: var(--enter);
+}
+
+::view-transition-old(root) {
+  animation: none;
+}
+
+::view-transition-new(root) {
+  animation-name: room-in;
+}
+
+@keyframes room-in {
+  from {
+    opacity: 0;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -165,5 +187,6 @@ button {
     transition-duration: 0.01ms !important;
     animation-duration: 0.01ms !important;
     animation-delay: 0s !important;
+    scroll-behavior: auto !important;
   }
 }

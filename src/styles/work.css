@@ -1,0 +1,411 @@
+/*
+ * Work: the issue. A running order of spreads, each composed for its
+ * project, then Everything. Images never run wider than their files carry
+ * (--cap); titles hold the edges of the images they sit beside.
+ */
+
+.issue {
+  padding-bottom: var(--space);
+}
+
+.spread + .spread {
+  margin-top: var(--space);
+}
+
+.spread__link {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  column-gap: var(--gap);
+  padding: 0 var(--pad);
+}
+
+.spread__media {
+  position: relative;
+  width: min(100%, var(--cap));
+}
+
+.spread__media img,
+.spread__media video {
+  width: 100%;
+}
+
+/* What a project reveals: a second still or a short clip, over the first. */
+.preview-still,
+.preview-clip {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity var(--fast) var(--ease);
+}
+
+.preview-still img,
+.preview-clip {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.is-previewing .preview-still.is-ready,
+.is-previewing .preview-clip.is-ready {
+  opacity: 1;
+}
+
+.spread__title {
+  font: var(--title);
+  letter-spacing: var(--title-track);
+  text-wrap: balance;
+  text-decoration: underline;
+  text-decoration-color: transparent;
+  text-decoration-thickness: 0.04em;
+  text-underline-offset: 0.1em;
+  transition: text-decoration-color var(--fast) var(--ease);
+}
+
+.spread__link:hover .spread__title,
+.spread__link:focus-visible .spread__title {
+  text-decoration-color: currentColor;
+}
+
+.spread__link:focus-visible {
+  outline-offset: 8px;
+}
+
+.spread__facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 1.5em;
+  margin-top: 16px;
+  font: var(--fact);
+}
+
+/* Full: the project's own room, edge to edge. */
+.spread--full .spread__link {
+  position: relative;
+  align-items: end;
+  min-height: min(92svh, 68vw);
+  padding-block: clamp(28px, 4vw, 64px);
+  background: var(--room);
+  color: var(--ink);
+}
+
+.spread--full .spread__media {
+  grid-column: 6 / 13;
+  grid-row: 1;
+  justify-self: end;
+  align-self: center;
+  width: min(100%, var(--cap), calc(76svh * var(--ar)));
+}
+
+.spread--full .spread__info {
+  grid-column: 1 / 8;
+  grid-row: 1;
+  position: relative;
+  z-index: 1;
+}
+
+.spread--full .spread__title {
+  font: var(--display);
+  letter-spacing: var(--display-track);
+}
+
+.spread--full.is-fill .spread__media {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+}
+
+.spread--full.is-fill .spread__media img,
+.spread--full.is-fill .spread__media video {
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Offset: the image across seven columns, the title holding its lower edge. */
+.spread--offset .spread__link {
+  align-items: end;
+}
+
+.spread--offset.is-left .spread__media {
+  grid-column: 1 / 8;
+}
+
+.spread--offset.is-left .spread__info {
+  grid-column: 8 / 13;
+}
+
+.spread--offset.is-right .spread__media {
+  grid-column: 6 / 13;
+  grid-row: 1;
+  justify-self: end;
+}
+
+.spread--offset.is-right .spread__info {
+  grid-column: 1 / 6;
+  grid-row: 1;
+}
+
+/* Small: a modest image, a very large title, a lot of air. */
+.spread--small .spread__link {
+  align-items: start;
+}
+
+.spread--small .spread__title {
+  font: var(--display);
+  letter-spacing: var(--display-track);
+}
+
+.spread--small .spread__media {
+  width: min(100%, var(--cap));
+}
+
+.spread--small.is-right .spread__info {
+  grid-column: 1 / 10;
+  grid-row: 1;
+}
+
+.spread--small.is-right .spread__media {
+  grid-column: 10 / 13;
+  grid-row: 1;
+  margin-top: clamp(96px, 12vw, 200px);
+}
+
+.spread--small.is-left .spread__media {
+  grid-column: 2 / 5;
+  grid-row: 1;
+  margin-top: clamp(96px, 12vw, 200px);
+}
+
+.spread--small.is-left .spread__info {
+  grid-column: 6 / 13;
+  grid-row: 1;
+}
+
+/* Pair: two projects share a row, never at the same height. */
+.spread--pair {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  column-gap: var(--gap);
+  padding: 0 var(--pad);
+  align-items: start;
+}
+
+.spread--pair .spread__link {
+  display: block;
+  padding: 0;
+}
+
+.pair__item--a {
+  grid-column: 1 / 6;
+}
+
+.pair__item--b {
+  grid-column: 8 / 12;
+  margin-top: clamp(120px, 16vw, 280px);
+}
+
+.spread--pair .spread__info {
+  margin-top: 18px;
+}
+
+.spread--pair .spread__title {
+  font-size: clamp(1.625rem, 2.8vw, 3.125rem);
+  line-height: 0.96;
+  letter-spacing: -0.04em;
+}
+
+/* Everything: the archive, as a list. */
+.everything {
+  padding: 0 var(--pad) var(--space-s);
+}
+
+.everything__label {
+  font: var(--voice);
+  margin-bottom: clamp(28px, 3.6vw, 56px);
+}
+
+.row__link {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  column-gap: var(--gap);
+  align-items: baseline;
+  padding: 6px 0;
+}
+
+.row__title {
+  grid-column: 1 / 8;
+  font: 400 clamp(1.5rem, 2.9vw, 2.875rem) / 1.04 var(--grotesk);
+  letter-spacing: -0.038em;
+  text-decoration: underline;
+  text-decoration-color: transparent;
+  text-decoration-thickness: 0.05em;
+  text-underline-offset: 0.1em;
+  transition: text-decoration-color var(--fast) var(--ease);
+}
+
+.row__type {
+  grid-column: 9 / 12;
+  font: var(--fact);
+}
+
+.row__year {
+  grid-column: 12 / 13;
+  justify-self: end;
+  font: var(--fact);
+  font-variant-numeric: tabular-nums;
+}
+
+.row__link:hover .row__title,
+.row__link:focus-visible .row__title {
+  text-decoration-color: currentColor;
+}
+
+/* On a pointer, the project's still appears beside its row. */
+.row__thumb {
+  position: absolute;
+  z-index: 2;
+  top: 50%;
+  left: calc((100% + var(--gap)) * 7 / 12);
+  width: clamp(120px, 11vw, 200px);
+  transform: translateY(-50%);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--fast) var(--ease);
+}
+
+.row__thumb img {
+  width: 100%;
+}
+
+.row__link:hover .row__thumb,
+.row__link:focus-visible .row__thumb {
+  opacity: 1;
+}
+
+@media (max-width: 799px) {
+  .issue {
+    padding-bottom: var(--space-s);
+  }
+
+  .spread + .spread {
+    margin-top: clamp(88px, 22vw, 140px);
+  }
+
+  .spread__link {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .spread__info {
+    margin-top: 16px;
+  }
+
+  .spread__title {
+    font-size: clamp(2rem, 10vw, 3.25rem);
+  }
+
+  .spread--full .spread__link {
+    min-height: 0;
+    padding-block: 28px 24px;
+  }
+
+  .spread--full .spread__media {
+    align-self: stretch;
+    width: min(100%, var(--cap));
+  }
+
+  .spread--full .spread__info {
+    margin-top: 28px;
+  }
+
+  .spread--full .spread__title,
+  .spread--small .spread__title {
+    font-size: clamp(2.5rem, 13vw, 4rem);
+  }
+
+  .spread--offset .spread__media {
+    width: min(86%, var(--cap));
+  }
+
+  .spread--offset.is-right .spread__media,
+  .spread--offset.is-right .spread__info {
+    align-self: flex-end;
+    text-align: right;
+  }
+
+  .spread--offset.is-right .spread__facts {
+    justify-content: flex-end;
+  }
+
+  /* Small: the title first and large, the image tucked under it on the far side. */
+  .spread--small .spread__info {
+    order: -1;
+    margin: 0;
+  }
+
+  .spread--small .spread__media {
+    width: min(58%, var(--cap));
+    margin-top: 28px !important;
+  }
+
+  .spread--small.is-right .spread__media {
+    align-self: flex-end;
+  }
+
+  .spread--small.is-left .spread__media {
+    align-self: flex-start;
+  }
+
+  .pair__item--a {
+    grid-column: 1 / 7;
+  }
+
+  .pair__item--b {
+    grid-column: 7 / 13;
+    margin-top: 72px;
+  }
+
+  .spread--pair .spread__title {
+    font-size: 1.25rem;
+    letter-spacing: -0.03em;
+  }
+
+  .spread--pair .spread__facts {
+    flex-direction: column;
+    margin-top: 10px;
+  }
+
+  /* Everything on a phone: a thumbnail on every row, no hover needed. */
+  .row__link {
+    grid-template-columns: 56px minmax(0, 1fr) auto;
+    column-gap: 14px;
+    align-items: center;
+    padding: 8px 0;
+  }
+
+  .row__thumb {
+    position: static;
+    grid-column: 1;
+    grid-row: 1 / 3;
+    width: 56px;
+    transform: none;
+    opacity: 1;
+  }
+
+  .row__title {
+    grid-column: 2;
+    grid-row: 1;
+    font-size: 1.375rem;
+  }
+
+  .row__type {
+    grid-column: 2;
+    grid-row: 2;
+    margin-top: 2px;
+  }
+
+  .row__year {
+    grid-column: 3;
+    grid-row: 1;
+  }
+}

@@ -1,0 +1,410 @@
+/*
+ * A project page: the project's own room, built from blocks. Every block
+ * sits on the same twelve columns; the rows of images vary their width,
+ * side and height so each project keeps its own pace.
+ */
+
+.project {
+  padding-bottom: var(--space-s);
+}
+
+.project > * + * {
+  margin-top: var(--space-s);
+}
+
+.opening,
+.seq,
+.pull,
+.description,
+.roles,
+.next {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  column-gap: var(--gap);
+  padding: 0 var(--pad);
+}
+
+/* Opening: the title, then the facts. */
+.opening {
+  padding-top: clamp(40px, 8vw, 136px);
+}
+
+.project > .opening + * {
+  margin-top: clamp(64px, 8vw, 136px);
+}
+
+.opening__title {
+  grid-column: 1 / 12;
+  font: var(--display);
+  letter-spacing: var(--display-track);
+  text-wrap: balance;
+}
+
+.opening__facts {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  column-gap: var(--gap);
+  row-gap: 18px;
+  margin-top: clamp(32px, 4.4vw, 72px);
+  font: var(--fact);
+}
+
+.opening__facts > div {
+  grid-column: span 2;
+}
+
+.opening__facts dt,
+.roles dt {
+  font-weight: 700;
+}
+
+.opening__facts dd {
+  margin-top: 4px;
+}
+
+/* The hero: edge to edge when the file allows, otherwise centred at its sharp size. */
+.hero {
+  display: flex;
+  justify-content: center;
+  padding: 0 var(--pad);
+}
+
+.project > .hero:first-child {
+  padding-top: clamp(12px, 2vw, 32px);
+}
+
+.hero__media {
+  position: relative;
+  width: min(100%, var(--cap), calc(80svh * var(--ar)));
+}
+
+.hero.is-fill {
+  padding: 0;
+}
+
+.hero.is-fill .hero__media {
+  width: 100%;
+  max-height: 92svh;
+  overflow: hidden;
+}
+
+.hero__media img,
+.hero__media video,
+.seq__item img,
+.seq__item video {
+  width: 100%;
+}
+
+.hero.is-fill .hero__media img,
+.hero.is-fill .hero__media video {
+  height: 100%;
+  max-height: 92svh;
+  object-fit: cover;
+}
+
+/* A clip sits over its poster and fades in once it plays. */
+.hero__media .clip,
+.seq__clip .clip {
+  position: absolute;
+  inset: 0;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  transition: opacity var(--base) var(--ease);
+}
+
+.seq__clip {
+  position: relative;
+}
+
+.clip.is-playing {
+  opacity: 1;
+}
+
+.hero__open,
+.seq__open {
+  display: block;
+  cursor: zoom-in;
+}
+
+/* Sequences. */
+.seq {
+  align-items: start;
+}
+
+.seq__item {
+  width: min(100%, var(--cap));
+}
+
+.seq--offset.is-left .seq__item {
+  grid-column: 1 / 8;
+}
+
+.seq--offset.is-right .seq__item {
+  grid-column: 6 / 13;
+  justify-self: end;
+}
+
+/* Pairs are never symmetrical: one image larger, the other lower. */
+.seq--pair.is-left > :first-child {
+  grid-column: 2 / 8;
+}
+
+.seq--pair.is-left > :last-child {
+  grid-column: 9 / 13;
+  margin-top: clamp(80px, 14vw, 240px);
+}
+
+.seq--pair.is-right > :first-child {
+  grid-column: 1 / 5;
+  align-self: end;
+}
+
+.seq--pair.is-right > :last-child {
+  grid-column: 6 / 12;
+}
+
+.seq--trio {
+  align-items: end;
+}
+
+.seq--trio > * {
+  grid-column: span 4;
+}
+
+.seq--trio > :nth-child(2) {
+  justify-self: center;
+}
+
+.seq--trio > :last-child {
+  justify-self: end;
+}
+
+.seq--full .seq__item {
+  grid-column: 1 / -1;
+  justify-self: center;
+  width: min(100%, var(--cap), calc(84svh * var(--ar)));
+}
+
+.seq--full.is-fill {
+  padding: 0;
+}
+
+.seq--full.is-fill .seq__item {
+  width: 100%;
+}
+
+/* A strip: a row that runs off the page, scrolled by trackpad, touch, keys or dragging. */
+.seq--strip {
+  display: flex;
+  gap: var(--gap);
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x proximity;
+  scroll-padding-inline: var(--pad);
+  scrollbar-width: none;
+  cursor: grab;
+}
+
+.seq--strip::-webkit-scrollbar {
+  display: none;
+}
+
+.seq--strip.is-dragging {
+  cursor: grabbing;
+  scroll-snap-type: none;
+  user-select: none;
+}
+
+.seq--strip.is-dragging a {
+  pointer-events: none;
+}
+
+.seq--strip .seq__item {
+  flex: none;
+  width: min(var(--cap), calc(64svh * var(--ar)), 84vw);
+  scroll-snap-align: start;
+}
+
+.seq--strip::after {
+  content: '';
+  flex: none;
+  width: 1px;
+}
+
+.seq--strip:focus-visible {
+  outline-offset: -2px;
+}
+
+/* The editorial voice. */
+.pull p {
+  grid-column: 3 / 11;
+  font: var(--voice);
+  text-wrap: balance;
+}
+
+.description p {
+  grid-column: 7 / 12;
+  font: var(--lead);
+  letter-spacing: var(--lead-track);
+  text-wrap: pretty;
+}
+
+/* Credits: Heni's role first, then everyone else. */
+.roles > div {
+  grid-column: 7 / 13;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  column-gap: var(--gap);
+  padding: 4px 0;
+  font: var(--fact);
+  font-size: 0.875rem;
+}
+
+.roles a {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+
+/* Next: the next project's title, set large, with its still waiting beside it. */
+.next {
+  margin-top: var(--space) !important;
+  align-items: end;
+  row-gap: clamp(28px, 4vw, 56px);
+}
+
+.next__label {
+  font: italic 400 1.25rem/1 var(--serif);
+}
+
+.next__prev {
+  grid-column: 1 / -1;
+  grid-row: 1;
+  justify-self: end;
+  font: var(--fact);
+  font-size: 0.875rem;
+}
+
+.next__prev .next__label {
+  margin-right: 0.6em;
+}
+
+.next__prev:hover .next__prev-title,
+.next__prev:focus-visible .next__prev-title {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.next__link {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  column-gap: var(--gap);
+  align-items: end;
+}
+
+.next__link .next__label {
+  grid-column: 1 / -1;
+  margin-bottom: 14px;
+}
+
+.next__title {
+  grid-column: 1 / 10;
+  font: var(--display);
+  letter-spacing: var(--display-track);
+  text-wrap: balance;
+  text-decoration: underline;
+  text-decoration-color: transparent;
+  text-decoration-thickness: 0.04em;
+  text-underline-offset: 0.1em;
+  transition: text-decoration-color var(--fast) var(--ease);
+}
+
+.next__link:hover .next__title,
+.next__link:focus-visible .next__title {
+  text-decoration-color: currentColor;
+}
+
+.next__media {
+  grid-column: 10 / 13;
+  justify-self: end;
+  width: min(100%, var(--cap), 260px);
+}
+
+.next__media img {
+  width: 100%;
+}
+
+@media (max-width: 799px) {
+  .opening__title {
+    grid-column: 1 / -1;
+    font-size: clamp(2.75rem, 13vw, 4.5rem);
+  }
+
+  .opening__facts > div {
+    grid-column: span 6;
+  }
+
+  .seq--offset.is-left .seq__item,
+  .seq--offset.is-right .seq__item {
+    grid-column: 1 / -1;
+    width: min(88%, var(--cap));
+  }
+
+  .seq--pair.is-left > :first-child,
+  .seq--pair.is-right > :first-child {
+    grid-column: 1 / 7;
+    align-self: start;
+  }
+
+  .seq--pair.is-left > :last-child,
+  .seq--pair.is-right > :last-child {
+    grid-column: 7 / 13;
+    margin-top: 56px;
+  }
+
+  /* A trio becomes a pair and a single. */
+  .seq--trio {
+    row-gap: var(--gap);
+  }
+
+  .seq--trio > :nth-child(1),
+  .seq--trio > :nth-child(2) {
+    grid-column: span 6;
+  }
+
+  .seq--trio > :last-child {
+    grid-column: 3 / 13;
+  }
+
+  .seq--strip .seq__item {
+    width: min(var(--cap), 82vw);
+  }
+
+  .pull p {
+    grid-column: 1 / -1;
+  }
+
+  .description p,
+  .roles > div {
+    grid-column: 1 / -1;
+  }
+
+  .next__prev {
+    justify-self: start;
+  }
+
+  .next__title {
+    grid-column: 1 / -1;
+    font-size: clamp(2.5rem, 12vw, 4rem);
+  }
+
+  .next__media {
+    grid-column: 1 / 8;
+    grid-row: 2;
+    justify-self: start;
+    margin-bottom: 20px;
+  }
+}

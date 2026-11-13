@@ -1,0 +1,190 @@
+/*
+ * The end credits: how to reach Heni, closing every page in the dark. On a
+ * dark project they continue its room; elsewhere the lights go down to black.
+ */
+.credits {
+  --c-room: #000;
+  --c-ink: #fff;
+  padding: clamp(72px, 10vw, 168px) var(--pad) 0;
+  background: var(--c-room);
+  color: var(--c-ink);
+}
+
+.room-dark .credits {
+  --c-room: var(--room);
+  --c-ink: var(--ink);
+}
+
+.credits ::selection {
+  background: var(--c-ink);
+  color: var(--c-room);
+}
+
+.credits__head {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  column-gap: var(--gap);
+  margin-bottom: clamp(28px, 4vw, 64px);
+}
+
+.credits__label {
+  grid-column: 1 / -1;
+  font: italic 400 1.25rem/1 var(--serif);
+}
+
+.credits__invite {
+  grid-column: 3 / 11;
+  margin-top: clamp(24px, 3vw, 48px);
+  font: var(--voice);
+  text-wrap: balance;
+}
+
+.credits__list {
+  display: grid;
+  row-gap: clamp(6px, 1vw, 14px);
+}
+
+.credits__row {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  column-gap: var(--gap);
+  align-items: baseline;
+}
+
+.credits__row dt {
+  grid-column: 1 / 3;
+  font: var(--fact);
+  font-size: 0.875rem;
+}
+
+.credits__row dd {
+  grid-column: 3 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  column-gap: clamp(16px, 2vw, 32px);
+}
+
+.credits__value {
+  font: 400 clamp(1.75rem, 5.3vw, 6.25rem) / 1 var(--grotesk);
+  letter-spacing: -0.048em;
+  text-decoration: underline;
+  text-decoration-color: transparent;
+  text-decoration-thickness: 0.04em;
+  text-underline-offset: 0.1em;
+  transition: text-decoration-color var(--fast) var(--ease);
+  white-space: nowrap;
+}
+
+.credits__value:hover,
+.credits__value:focus-visible {
+  text-decoration-color: currentColor;
+}
+
+.credits__copy {
+  position: relative;
+  font: var(--fact);
+  font-size: 0.875rem;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 4px;
+}
+
+.credits__copy::after {
+  content: '';
+  position: absolute;
+  inset: -14px -10px;
+}
+
+.credits__foot {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  column-gap: var(--gap);
+  align-items: center;
+  min-height: 72px;
+  margin-top: clamp(64px, 9vw, 152px);
+  font: var(--fact);
+  font-size: 0.875rem;
+}
+
+.credits__foot > :nth-child(1) {
+  grid-column: 1 / 5;
+}
+
+.credits__foot > :nth-child(2) {
+  grid-column: 5 / 9;
+}
+
+.credits__foot > :nth-child(3) {
+  grid-column: 9 / 13;
+  justify-self: end;
+}
+
+.credits__foot time {
+  font-variant-numeric: tabular-nums;
+}
+
+/* On the Contact page the credits are the page. */
+.credits--page {
+  display: flex;
+  flex-direction: column;
+  min-height: calc(100svh - var(--bar));
+  padding-top: clamp(24px, 3.4vw, 64px);
+}
+
+.credits--page .credits__head {
+  margin-bottom: clamp(40px, 6vh, 96px);
+}
+
+.credits--page .credits__invite {
+  font-size: clamp(1.75rem, 3vw, 3.25rem);
+}
+
+.credits--page .credits__foot {
+  margin-top: auto;
+  padding-top: 40px;
+}
+
+@media (max-width: 799px) {
+  .credits__invite {
+    grid-column: 1 / -1;
+  }
+
+  .credits__list {
+    row-gap: 22px;
+  }
+
+  .credits__row dt,
+  .credits__row dd {
+    grid-column: 1 / -1;
+  }
+
+  .credits__row dt {
+    margin-bottom: 6px;
+  }
+
+  /* Sized so the email address, the longest line, stays on one line. */
+  .credits__value {
+    font-size: clamp(1.25rem, 6.9vw, 2.75rem);
+  }
+
+  .credits__foot {
+    grid-template-columns: 1fr 1fr;
+    row-gap: 8px;
+    padding-bottom: 16px;
+  }
+
+  .credits__foot > :nth-child(1) {
+    grid-column: 1;
+  }
+
+  .credits__foot > :nth-child(2) {
+    grid-column: 2;
+    justify-self: end;
+  }
+
+  .credits__foot > :nth-child(3) {
+    grid-column: 1 / -1;
+    justify-self: start;
+  }
+}

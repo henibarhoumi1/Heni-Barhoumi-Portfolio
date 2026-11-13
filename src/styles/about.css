@@ -1,115 +1,118 @@
-/* About and contact: small labels, very large type, a lot of air. */
-
 /*
- * The portrait. The photograph is cut along its left and bottom edges, so
- * those edges belong on the edges of the window: on large screens it stays in
- * the bottom-left corner while the page moves beside it; on small screens it
- * closes the page, standing on its last edge. Its backdrop is processed to
- * pure white, and multiply keeps it seamless.
+ * About: the portrait holds the left half of the window, from top to bottom,
+ * while the words move through the right half. A small portrait file stands
+ * on the bottom-left corner, where its own cut edges are; a large one fills
+ * the half (is-fill). Its backdrop is processed to white, so it joins the page.
  */
-.portrait {
-  width: 66%;
-  margin-top: 40px;
-  pointer-events: none;
+.about {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  column-gap: var(--gap);
+  min-height: calc(100svh - var(--bar));
 }
 
-.portrait img {
+.about__portrait {
+  position: sticky;
+  top: 0;
+  grid-column: 1;
+  grid-row: 1;
+  align-self: start;
+  display: flex;
+  align-items: flex-end;
+  height: 100svh;
+  margin-top: calc(-1 * var(--bar));
+}
+
+.about__portrait picture {
+  width: min(100%, var(--cap));
+}
+
+.about__portrait img {
   width: 100%;
   mix-blend-mode: multiply;
 }
 
-.about__text {
-  max-width: 31em;
-  font-size: clamp(1.125rem, 1.6vw, 1.5rem);
-  line-height: 1.18;
-  letter-spacing: -0.022em;
-}
-
-.about__text p + p {
-  margin-top: 0.85em;
-}
-
-@media (min-width: 800px) and (min-height: 520px) {
-  .portrait {
-    position: fixed;
-    left: 0;
-    bottom: 0;
-    z-index: 5;
-    /* The file is 576px wide; past this size it softens on high-density screens. */
-    width: min(25vw - 4px, 300px);
-    margin: 0;
-  }
-
-  /* Everything on the page keeps clear of the portrait's column. */
-  .about .section {
-    display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    column-gap: var(--gap);
-  }
-
-  .about .section > * {
-    grid-column: 2 / -1;
-  }
-
-  .about .display {
-    font-size: clamp(2.5rem, 5.9vw, 6rem);
-  }
-
-  .page-about .colophon > :nth-child(1) {
-    grid-column: 2;
-  }
-
-  .page-about .colophon > :nth-child(2) {
-    grid-column: 3;
-  }
-}
-
-/* Fields of work: words and work on the same line. */
-.fields {
-  text-wrap: balance;
-}
-
-.fields__image {
-  display: inline-block;
-  height: 0.72em;
-  aspect-ratio: var(--ar);
-  margin: 0 0.04em;
-  vertical-align: -0.02em;
-  overflow: hidden;
-  transition: transform 0.4s var(--ease);
-}
-
-.fields__image:hover {
-  transform: scale(1.06);
-}
-
-.fields__image picture,
-.fields__image img {
+.about__portrait.is-fill picture,
+.about__portrait.is-fill img {
   width: 100%;
   height: 100%;
 }
 
-.fields__image img {
+.about__portrait.is-fill img {
   object-fit: cover;
+  object-position: 50% 20%;
+  mix-blend-mode: normal;
 }
 
-/* Contact */
-.contact__invite {
-  max-width: 34ch;
-  font: var(--text-lead);
-  letter-spacing: -0.025em;
+.about__text {
+  grid-column: 2;
+  grid-row: 1;
+  max-width: 34em;
+  padding: clamp(40px, 9vh, 120px) var(--pad) var(--space-s) 0;
 }
 
-.contact__lines span {
-  display: block;
+.about__opening {
+  font: italic 400 clamp(3.25rem, 7.6vw, 8.5rem) / 0.92 var(--serif);
+  letter-spacing: -0.02em;
+  margin-bottom: clamp(28px, 4vw, 64px);
 }
 
-/* Addresses are long and cannot break, so they scale with the page to stay on one line. */
-.contact__line {
-  font-size: clamp(1.5rem, 6.9vw, 7.5rem);
-  white-space: nowrap;
+.about__text p:not(.about__opening) {
+  font: var(--lead);
+  letter-spacing: var(--lead-track);
+  text-wrap: pretty;
 }
 
-.contact__lines time {
-  font-feature-settings: 'tnum';
+.about__text p:not(.about__opening) + p {
+  margin-top: 0.9em;
+}
+
+@media (max-width: 799px) {
+  .about {
+    display: block;
+    min-height: 0;
+  }
+
+  .about__portrait {
+    position: static;
+    height: auto;
+    margin-top: 0;
+  }
+
+  .about__portrait picture {
+    width: min(100%, var(--cap));
+  }
+
+  .about__text {
+    padding: 40px var(--pad) var(--space-s);
+  }
+
+  .about__opening {
+    font-size: clamp(3rem, 16vw, 4.75rem);
+  }
+}
+
+/* Not found. */
+.missing {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: calc(100svh - var(--bar));
+  padding: clamp(40px, 8vw, 136px) var(--pad) var(--space-s);
+}
+
+.missing__title {
+  font: var(--display);
+  letter-spacing: var(--display-track);
+  max-width: 10em;
+}
+
+.missing__link {
+  font: var(--voice);
+}
+
+.missing__link a {
+  text-decoration: underline;
+  text-decoration-thickness: 0.04em;
+  text-underline-offset: 0.12em;
 }

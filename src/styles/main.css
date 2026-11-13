@@ -1,7 +1,9 @@
 @import './tokens.css';
 @import './base.css';
-@import './chrome.css';
-@import './home.css';
-@import './series.css';
+@import './masthead.css';
+@import './work.css';
+@import './project.css';
+@import './film.css';
 @import './about.css';
-@import './lightbox.css';
+@import './credits.css';
+@import './viewer.css';

@@ -1,0 +1,182 @@
+/*
+ * The viewer: one image at a time in the project's room. The other images
+ * wait in a strip at the foot on large screens; on phones, swipe.
+ */
+.viewer {
+  width: 100vw;
+  height: 100dvh;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: var(--room);
+  color: var(--ink);
+  overflow: hidden;
+}
+
+.viewer::backdrop {
+  background: var(--room);
+}
+
+.viewer[open] {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-rows: var(--bar) minmax(0, 1fr) auto;
+  animation: viewer-in var(--base) var(--ease);
+}
+
+@keyframes viewer-in {
+  from {
+    opacity: 0;
+  }
+}
+
+html:has(.viewer[open]) {
+  overflow: hidden;
+}
+
+.viewer__caption {
+  grid-column: 1;
+  grid-row: 1;
+  align-self: center;
+  padding-left: var(--pad);
+  font: italic 400 1rem/1.2 var(--serif);
+}
+
+.viewer__close {
+  position: relative;
+  z-index: 3;
+  grid-column: 2;
+  grid-row: 1;
+  align-self: center;
+  padding: 0 var(--pad);
+  min-height: 44px;
+  font: var(--fact);
+  font-size: 0.875rem;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 4px;
+}
+
+.viewer__stage {
+  grid-column: 1 / -1;
+  grid-row: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 0;
+  padding: 0 var(--pad);
+}
+
+.viewer__stage picture {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+
+.viewer__stage img {
+  width: auto;
+  height: auto;
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+/* Each half of the image is a step; its word waits in the lower corner. */
+.viewer__step {
+  position: absolute;
+  z-index: 2;
+  top: var(--bar);
+  bottom: 0;
+  width: 50%;
+  display: flex;
+  align-items: flex-end;
+  padding: 0 var(--pad) 22px;
+  font: var(--fact);
+  font-size: 0.875rem;
+}
+
+.viewer__step--prev {
+  left: 0;
+  cursor: w-resize;
+}
+
+.viewer__step--next {
+  right: 0;
+  justify-content: flex-end;
+  cursor: e-resize;
+}
+
+.viewer__step span {
+  text-decoration: underline;
+  text-decoration-color: transparent;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 4px;
+}
+
+.viewer__step:hover span {
+  text-decoration-color: currentColor;
+}
+
+.viewer__step:focus-visible {
+  outline-offset: -8px;
+}
+
+.viewer[data-single] .viewer__step,
+.viewer[data-single] .viewer__strip {
+  display: none;
+}
+
+/* The other images, small; the one shown is the one at full strength. */
+.viewer__strip {
+  position: relative;
+  z-index: 3;
+  grid-column: 1 / -1;
+  grid-row: 3;
+  justify-self: center;
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  height: 92px;
+  max-width: calc(100vw - 2 * var(--pad) - 240px);
+  padding: 16px 0 18px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+/* The image shown stands taller than the rest. */
+.viewer__strip button {
+  flex: none;
+  height: 40px;
+  transition: height var(--fast) var(--ease);
+}
+
+.viewer__strip button:hover {
+  height: 48px;
+}
+
+.viewer__strip button[aria-current='true'] {
+  height: 58px;
+}
+
+.viewer__strip img {
+  width: auto;
+  height: 100%;
+  opacity: 1;
+}
+
+@media (max-width: 799px), (hover: none) {
+  .viewer__strip {
+    display: none;
+  }
+
+  .viewer__stage {
+    padding: 0;
+  }
+
+  .viewer {
+    touch-action: pan-y pinch-zoom;
+  }
+}

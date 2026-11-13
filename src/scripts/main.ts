@@ -1,9 +1,21 @@
+import { initClips } from './clips.ts';
 import { initClock } from './clock.ts';
-import { initCycle } from './cycle.ts';
+import { initCopy } from './copy.ts';
+import { initFilms } from './film.ts';
 import { initImages } from './images.ts';
-import { initLightbox } from './lightbox.ts';
+import { initKeys } from './keys.ts';
+import { initMasthead } from './masthead.ts';
+import { initPreviews } from './previews.ts';
+import { initStrips } from './strip.ts';
+import { initViewer } from './viewer.ts';
 
 initImages();
 initClock();
-initCycle();
-initLightbox();
+initMasthead();
+initPreviews();
+initClips();
+initStrips();
+initViewer();
+initFilms();
+initKeys();
+initCopy();

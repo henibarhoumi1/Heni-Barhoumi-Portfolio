@@ -1,21 +1,22 @@
 import type { Assets } from '../../build/assets.ts';
 import type { Frame } from '../../build/images.ts';
-import type { Series, Site } from '../../content/types.ts';
-
-export interface SeriesEntry extends Series {
-  /** 1-based position on the site. */
-  number: number;
-  frames: Frame[];
-  coverFrame: Frame;
-  /** Site path, e.g. /work/dark-fantasy/ */
-  path: string;
-}
+import type { Entry, Row } from '../../build/projects.ts';
+import type { Site } from '../../content/types.ts';
 
 export interface BuildContext {
   site: Site;
-  series: SeriesEntry[];
+  /** Every project, in content order. */
+  entries: Entry[];
+  /** The curated running order on Work. */
+  rows: Row[];
+  /** Every project in the order of the running order, then the rest: the order of previous and next. */
+  sequence: Entry[];
+  /** Every project, newest first. */
+  everything: Entry[];
   portrait: Frame | undefined;
   assets: Assets;
+  fontCss: string;
+  preload: string[];
   ogImage: string | undefined;
   year: number;
 }

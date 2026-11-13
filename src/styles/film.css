@@ -1,0 +1,161 @@
+/*
+ * A full film: the project's poster and our own play action. The Vimeo
+ * player loads only after Play, in place of the poster.
+ */
+.film {
+  padding: 0 var(--pad);
+}
+
+.film__frame {
+  position: relative;
+  aspect-ratio: var(--ar);
+  width: 100%;
+  overflow: hidden;
+  background: #000;
+}
+
+.film__frame > picture,
+.film__frame > picture img,
+.film__frame iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+.film__frame > picture img {
+  object-fit: cover;
+}
+
+/* The whole poster plays; the word sits at its lower left, in the voice. */
+.film__play {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: flex-end;
+  padding: clamp(16px, 2.4vw, 40px);
+  color: #fff;
+}
+
+.film__play-label {
+  font: var(--voice);
+  text-decoration: underline;
+  text-decoration-color: transparent;
+  text-decoration-thickness: 0.04em;
+  text-underline-offset: 0.12em;
+  transition: text-decoration-color var(--fast) var(--ease);
+  text-shadow: 0 0 32px rgb(0 0 0 / 0.35);
+}
+
+.film__play:hover .film__play-label,
+.film__play:focus-visible .film__play-label {
+  text-decoration-color: currentColor;
+}
+
+.film__play:focus-visible {
+  outline-offset: -6px;
+}
+
+.film.is-playing .film__play,
+.film.is-playing .film__frame > picture {
+  display: none;
+}
+
+.film__controls {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto auto auto;
+  column-gap: clamp(16px, 2vw, 32px);
+  align-items: center;
+  min-height: 48px;
+  font: var(--fact);
+  font-size: 0.875rem;
+}
+
+.film__controls button {
+  min-height: 44px;
+  text-decoration: underline;
+  text-decoration-color: transparent;
+  text-underline-offset: 4px;
+  transition: text-decoration-color var(--fast) var(--ease);
+}
+
+.film__controls button:hover {
+  text-decoration-color: currentColor;
+}
+
+.film__time {
+  font-variant-numeric: tabular-nums;
+}
+
+/* The scrubber: the one place a line is the control itself. */
+.film__controls input[type='range'] {
+  width: 100%;
+  height: 44px;
+  margin: 0;
+  background: transparent;
+  accent-color: var(--ink);
+  -webkit-appearance: none;
+  appearance: none;
+  cursor: pointer;
+}
+
+.film__controls input[type='range']::-webkit-slider-runnable-track {
+  height: 1px;
+  background: currentColor;
+}
+
+.film__controls input[type='range']::-moz-range-track {
+  height: 1px;
+  background: currentColor;
+}
+
+.film__controls input[type='range']::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 12px;
+  height: 12px;
+  margin-top: -5.5px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.film__controls input[type='range']::-moz-range-thumb {
+  width: 12px;
+  height: 12px;
+  border: 0;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.film__caption {
+  margin-top: 12px;
+  font: var(--fact);
+}
+
+.film:fullscreen {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 0 var(--pad);
+  background: #000;
+  color: #fff;
+}
+
+.film:fullscreen .film__frame {
+  max-height: calc(100vh - 96px);
+  width: auto;
+}
+
+.film:fullscreen .film__caption {
+  display: none;
+}
+
+@media (max-width: 799px) {
+  .film__controls {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+  }
+
+  .film__controls [data-film-full] {
+    display: none;
+  }
+}
