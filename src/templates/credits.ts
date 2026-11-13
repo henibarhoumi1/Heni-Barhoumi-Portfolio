@@ -9,8 +9,7 @@ interface CreditsOptions {
 }
 
 /**
- * The end credits: how to reach Heni, closing every page. In the dark: on a
- * dark project they continue its room; on bright pages the lights go down.
+ * The end credits: how to reach Heni, closing every page in the dark room.
  * `data-room` lets the header take the same colours when it passes over.
  */
 export function endCredits(ctx: BuildContext, { level, invite }: CreditsOptions): string {

@@ -105,12 +105,11 @@ export interface Project {
   };
 
   /**
-   * The project's room. 'bright' keeps the page white. A colour turns the page
-   * that colour as you enter, like the house lights going down.
+   * The project's room. 'bright' is white with black type. 'dark' turns the
+   * page black with white type as you enter, like the house lights going down.
+   * The site uses no other colours.
    */
-  room: 'bright' | `#${string}`;
-  /** Text on the room. Worked out from the colour when left out. */
-  ink?: 'light' | 'dark';
+  room: 'bright' | 'dark';
 
   /** Starting order of blocks. Ignored when `blocks` is given. */
   preset: Preset;

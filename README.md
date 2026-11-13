@@ -7,10 +7,10 @@ browser: the pages are plain HTML, one stylesheet and about 11 KB of JavaScript.
 
 ## The idea: house lights
 
-You browse the work in a bright room and watch it in a dark one. Work and
-About are white with black type. Opening a project brings the lights down: the
-page takes that project's own colour while its image travels into place. Every
-page closes on the same end credits: how to reach Heni.
+You browse the work in a bright room and watch it in a dark one. The site is
+black and white only. Work and About are white with black type. Opening a dark
+project brings the lights down: the page turns black while its image travels
+into place. Every page closes on the same end credits: how to reach Heni.
 
 ## Run it
 
@@ -65,7 +65,7 @@ The fields, all described in `content/types.ts`:
 | `client`, `place`, `description` | Optional. The description is one short paragraph. |
 | `credits` | Collaborators. Heni's role is added first automatically. |
 | `spread` | Place in the running order: `full`, `offset`, `small` or `pair` (two `pair` projects in a row share it). Leave out to list the project in Everything only. |
-| `room` | `'bright'`, or a deep colour like `'#0b2a2f'` for the project's page. |
+| `room` | `'bright'` (white) or `'dark'` (black) for the project's page. No other colours. |
 | `preset` | `film`, `editorial`, `campaign` or `personal`: a starting order of blocks. |
 | `blocks` | Optional. The page block by block, replacing the preset. |
 | `cover`, `preview`, `hero`, `film` | Which media to use where. See below. |

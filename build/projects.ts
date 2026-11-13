@@ -56,21 +56,11 @@ export interface Entry {
   sections: Section[];
 }
 
-/** Relative luminance of a #rrggbb colour, 0 to 1. */
-function luminance(hex: string): number {
-  const [r, g, b] = [1, 3, 5].map((i) => {
-    const c = parseInt(hex.slice(i, i + 2), 16) / 255;
-    return c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
-  }) as [number, number, number];
-  return 0.2126 * r + 0.7152 * g + 0.0722 * b;
-}
-
-export function room(project: Pick<Project, 'room' | 'ink'>): Room {
+/** Black and white only: the bright room is white with black type, the dark room the reverse. */
+export function room(project: Pick<Project, 'room'>): Room {
   if (project.room === 'bright') return { bg: '#ffffff', ink: '#000000', dark: false };
-  const hex = /^#[0-9a-f]{6}$/i.test(project.room) ? project.room.toLowerCase() : null;
-  if (!hex) throw new Error(`room must be 'bright' or a #rrggbb colour, got "${project.room}"`);
-  const light = project.ink ? project.ink === 'light' : luminance(hex) < 0.18;
-  return { bg: hex, ink: light ? '#ffffff' : '#000000', dark: light };
+  if (project.room === 'dark') return { bg: '#000000', ink: '#ffffff', dark: true };
+  throw new Error(`room must be 'bright' or 'dark', got "${String(project.room)}"`);
 }
 
 /** Accepts vimeo.com/123, vimeo.com/123/abcdef, player.vimeo.com/video/123?h=abcdef. */

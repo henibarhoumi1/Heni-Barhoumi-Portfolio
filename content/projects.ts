@@ -22,7 +22,7 @@ export const projects: Project[] = [
       { role: 'Makeup and styling', ...ig('yasmine_basty420') },
     ],
     spread: 'full',
-    room: '#0b2a2f',
+    room: 'dark',
     preset: 'editorial',
     blocks: [
       { type: 'opening' },
@@ -56,7 +56,7 @@ export const projects: Project[] = [
     place: 'El Mourouj, Tunis',
     credits: [{ role: 'Model', ...ig('laballade_desgensheureux') }],
     spread: 'small',
-    room: '#33121b',
+    room: 'dark',
     preset: 'campaign',
   },
   {
@@ -68,7 +68,7 @@ export const projects: Project[] = [
     place: 'La Marsa, Tunis',
     credits: [{ role: 'Model', ...ig('wojoud222') }],
     spread: 'pair',
-    room: '#13200f',
+    room: 'dark',
     preset: 'campaign',
     image: { trim: true },
   },
@@ -81,7 +81,7 @@ export const projects: Project[] = [
     place: 'La Marsa, Tunis',
     credits: [],
     spread: 'pair',
-    room: '#06141a',
+    room: 'dark',
     preset: 'personal',
     blocks: [
       { type: 'opening' },
@@ -98,7 +98,7 @@ export const projects: Project[] = [
     place: 'El Menzah, Tunis',
     credits: [],
     spread: 'offset',
-    room: '#22260a',
+    room: 'dark',
     preset: 'editorial',
   },
   {
@@ -110,7 +110,7 @@ export const projects: Project[] = [
     place: 'Sidi Bou Said, Tunis',
     credits: [{ role: 'Model', ...ig('cher.1f') }],
     spread: 'small',
-    room: '#031726',
+    room: 'dark',
     preset: 'personal',
     blocks: [
       { type: 'opening' },

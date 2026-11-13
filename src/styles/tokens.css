@@ -2,9 +2,9 @@
  * Design tokens. The typefaces themselves are set in src/fonts.ts, which
  * defines --grotesk and --serif.
  *
- * Colour: every page sits in a room. --room is its background and --ink its
- * text: white and black in the bright room, a project's own colour and white
- * in a dark one. Nothing else carries colour except the work. No greys.
+ * Colour: black and white, nothing else. Every page sits in a room: --room
+ * is its background and --ink its text. The bright room is white with black
+ * type, the dark room black with white. Only the work carries colour.
  */
 :root {
   --room: #fff;
