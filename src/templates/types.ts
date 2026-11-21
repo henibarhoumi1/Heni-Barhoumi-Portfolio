@@ -1,18 +1,14 @@
 import type { Assets } from '../../build/assets.ts';
 import type { Frame } from '../../build/images.ts';
-import type { Entry, Row } from '../../build/projects.ts';
+import type { Entry } from '../../build/projects.ts';
 import type { Site } from '../../content/types.ts';
 
 export interface BuildContext {
   site: Site;
-  /** Every project, in content order. */
+  /** Every project: selected work first, then the archive. Also the order of Next. */
   entries: Entry[];
-  /** The curated running order on Work. */
-  rows: Row[];
-  /** Every project in the order of the running order, then the rest: the order of previous and next. */
-  sequence: Entry[];
-  /** Every project, newest first. */
-  everything: Entry[];
+  /** The projects on the Work strip. */
+  selected: Entry[];
   portrait: Frame | undefined;
   assets: Assets;
   fontCss: string;

@@ -1,41 +1,28 @@
 /**
  * Turns the content of a project into what the templates draw: names of
- * images and clips become processed files, the preset becomes blocks, the
- * room colour becomes a pair of colours with enough contrast.
+ * images and clips become processed files, and the project page becomes a
+ * list of spreads.
  */
-import type { Block, Credit, Project, SequenceLayout, Spread } from '../content/types.ts';
+import type { Credit, Project, Spread } from '../content/types.ts';
 import type { Frame } from './images.ts';
-import { presetBlocks } from './presets.ts';
 import type { Clip } from './videos.ts';
 
 /** A picture or a clip with its poster. */
 export type Media = { kind: 'still'; frame: Frame } | { kind: 'clip'; clip: Clip; poster: Frame };
-
-export interface Room {
-  /** Background. */
-  bg: string;
-  /** Text. */
-  ink: string;
-  /** True when the page goes dark. */
-  dark: boolean;
-}
 
 export interface Film {
   id: string;
   hash?: string;
   poster: Frame;
   ratio: number;
-  caption?: string;
 }
 
-export type Section =
-  | { type: 'opening' }
-  | { type: 'hero'; media: Media }
-  | { type: 'description'; text: string }
-  | { type: 'sequence'; layout: SequenceLayout; media: Media[]; side: 'left' | 'right' }
-  | { type: 'film'; film: Film }
-  | { type: 'pull'; text: string }
-  | { type: 'credits'; credits: Credit[] };
+export type Page =
+  | { kind: 'opening'; large: Media; small?: Media }
+  | { kind: 'pair'; media: [Media, Media] }
+  | { kind: 'single'; media: Media; side: 'left' | 'right' }
+  | { kind: 'small-large'; small: Media; large: Media }
+  | { kind: 'film'; film: Film };
 
 export interface Entry {
   slug: string;
@@ -45,22 +32,21 @@ export interface Entry {
   role: string;
   client?: string;
   place?: string;
+  description?: string;
   path: string;
-  spread?: Spread;
-  side?: 'left' | 'right';
+  /** On the Work strip. */
+  selected: boolean;
+  /** Two digits, in order of the site: selected work first. Set by number(). */
+  number: string;
+  /** One line that names the work: title, type, place, year. */
+  caption: string;
   cover: Frame;
   frames: Frame[];
-  preview: { still?: Frame; clip?: Clip };
-  hero: Media;
-  room: Room;
-  sections: Section[];
-}
-
-/** Black and white only: the bright room is white with black type, the dark room the reverse. */
-export function room(project: Pick<Project, 'room'>): Room {
-  if (project.room === 'bright') return { bg: '#ffffff', ink: '#000000', dark: false };
-  if (project.room === 'dark') return { bg: '#000000', ink: '#ffffff', dark: true };
-  throw new Error(`room must be 'bright' or 'dark', got "${String(project.room)}"`);
+  /** Images on the Work strip. */
+  strip: Frame[];
+  spreads: Page[];
+  /** Heni's role first, then the collaborators. */
+  credits: Credit[];
 }
 
 /** Accepts vimeo.com/123, vimeo.com/123/abcdef, player.vimeo.com/video/123?h=abcdef. */
@@ -75,6 +61,35 @@ export function parseVimeo(url: string): { id: string; hash?: string } {
   return hash ? { id, hash } : { id };
 }
 
+/**
+ * The automatic page: an opening, then a rhythm of pairs, singles and
+ * small-beside-large, so no two projects with different counts of images
+ * read the same. A spread that would be short of images becomes a single.
+ */
+export function autoSpreads(names: string[], cover: string, hasFilm: boolean): Spread[] {
+  const rest = names.filter((n) => n !== cover);
+  const take = (n: number) => rest.splice(0, n);
+  const out: Spread[] = [];
+  const small = take(1)[0];
+  out.push(small ? { kind: 'opening', large: cover, small } : { kind: 'opening', large: cover });
+  if (hasFilm) out.push({ kind: 'film' });
+  const rhythm = ['pair', 'single-left', 'small-large', 'pair', 'single-right'] as const;
+  let beat = 0;
+  while (rest.length > 0) {
+    const step = rhythm[beat % rhythm.length] as (typeof rhythm)[number];
+    beat += 1;
+    const two = step === 'pair' || step === 'small-large';
+    if (two && rest.length >= 2) {
+      const [a, b] = take(2) as [string, string];
+      out.push(step === 'pair' ? { kind: 'pair', media: [a, b] } : { kind: 'small-large', small: a, large: b });
+    } else if (!two || rest.length === 1) {
+      const [a] = take(1) as [string];
+      out.push({ kind: 'single', media: a, side: step === 'single-right' ? 'right' : 'left' });
+    }
+  }
+  return out;
+}
+
 export function resolve(project: Project, frames: Frame[], clips: Map<string, Clip>): Entry {
   const where = `project "${project.slug}"`;
   const still = (name: string, what: string): Frame => {
@@ -82,73 +97,51 @@ export function resolve(project: Project, frames: Frame[], clips: Map<string, Cl
     if (!frame) throw new Error(`${where}: ${what} "${name}" is not an image in photos/${project.slug}/`);
     return frame;
   };
-  const clip = (name: string, what: string): Clip => {
-    const found = clips.get(name);
-    if (!found) throw new Error(`${where}: ${what} "${name}" is not a clip in photos/${project.slug}/`);
-    return found;
-  };
-  /** A name in a sequence: an image, or a clip whose poster is the image of the same name, else the cover. */
+  const cover = project.cover ? still(project.cover, 'cover') : (frames[0] as Frame);
+  /** A name: an image, or a clip whose poster is the image of the same name, else the cover. */
   const media = (name: string): Media => {
-    if (clips.has(name)) {
+    const clip = clips.get(name);
+    if (clip) {
       const base = name.replace(/\.[^.]+$/, '');
-      return { kind: 'clip', clip: clip(name, 'clip'), poster: frames.find((f) => f.name === base) ?? cover };
+      return { kind: 'clip', clip, poster: frames.find((f) => f.name === base) ?? cover };
     }
     return { kind: 'still', frame: still(name, 'image') };
   };
 
-  const cover = project.cover ? still(project.cover, 'cover') : (frames[0] as Frame);
-  const heroStill = project.hero?.still ? still(project.hero.still, 'hero still') : cover;
-  const hero: Media = project.hero?.video ? { kind: 'clip', clip: clip(project.hero.video, 'hero video'), poster: heroStill } : { kind: 'still', frame: heroStill };
-
-  const previewStill = project.preview?.still ? still(project.preview.still, 'preview still') : frames.find((f) => f !== cover);
-  const preview = {
-    ...(previewStill ? { still: previewStill } : {}),
-    ...(project.preview?.video ? { clip: clip(project.preview.video, 'preview video') } : {}),
-  };
-
-  const film = (block?: { vimeo?: string; poster?: string; caption?: string }): Film | null => {
-    const vimeo = block?.vimeo ?? project.film?.vimeo;
-    if (!vimeo) return null;
-    const posterName = block?.poster ?? project.film?.poster;
+  const film = (): Film => {
+    if (!project.film) throw new Error(`${where}: a film spread needs project.film`);
     return {
-      ...parseVimeo(vimeo),
-      poster: posterName ? still(posterName, 'film poster') : heroStill,
-      ratio: project.film?.ratio ?? 16 / 9,
-      ...(block?.caption ? { caption: block.caption } : {}),
+      ...parseVimeo(project.film.vimeo),
+      poster: project.film.poster ? still(project.film.poster, 'film poster') : cover,
+      ratio: project.film.ratio ?? 16 / 9,
     };
   };
 
-  const stillNames = frames.map((f) => f.name);
-  const blocks: Block[] = project.blocks ? [...project.blocks] : presetBlocks(project, stillNames, heroStill.name);
-  if (!blocks.some((b) => b.type === 'opening')) blocks.unshift({ type: 'opening' });
+  const plan =
+    project.spreads ??
+    autoSpreads(
+      frames.map((f) => f.name),
+      cover.name,
+      Boolean(project.film),
+    );
+  if (plan[0]?.kind !== 'opening') throw new Error(`${where}: the first spread must be the opening`);
 
-  // Heni's role leads the credits.
-  const credits: Credit[] = [{ role: project.role, name: 'Heni Barhoumi' }, ...project.credits];
-
-  let turn = 0;
-  const sections: Section[] = blocks.flatMap((block): Section[] => {
-    switch (block.type) {
+  const spreads: Page[] = plan.map((s): Page => {
+    switch (s.kind) {
       case 'opening':
-        return [{ type: 'opening' }];
-      case 'hero':
-        return [{ type: 'hero', media: hero }];
-      case 'description':
-        return project.description ? [{ type: 'description', text: project.description }] : [];
-      case 'sequence': {
-        turn += 1;
-        if (block.media.length === 0) return [];
-        return [{ type: 'sequence', layout: block.layout, media: block.media.map(media), side: block.side ?? (turn % 2 ? 'left' : 'right') }];
-      }
-      case 'film': {
-        const f = film(block);
-        return f ? [{ type: 'film', film: f }] : [];
-      }
-      case 'pull':
-        return block.text.trim() ? [{ type: 'pull', text: block.text.trim() }] : [];
-      case 'credits':
-        return [{ type: 'credits', credits }];
+        return s.small ? { kind: 'opening', large: media(s.large), small: media(s.small) } : { kind: 'opening', large: media(s.large) };
+      case 'pair':
+        return { kind: 'pair', media: [media(s.media[0]), media(s.media[1])] };
+      case 'single':
+        return { kind: 'single', media: media(s.media), side: s.side ?? 'left' };
+      case 'small-large':
+        return { kind: 'small-large', small: media(s.small), large: media(s.large) };
+      case 'film':
+        return { kind: 'film', film: film() };
     }
   });
+
+  const caption = [project.title, project.type, project.place].filter(Boolean).join(', ') + ` ©${project.year}`;
 
   return {
     slug: project.slug,
@@ -158,40 +151,22 @@ export function resolve(project: Project, frames: Frame[], clips: Map<string, Cl
     role: project.role,
     ...(project.client ? { client: project.client } : {}),
     ...(project.place ? { place: project.place } : {}),
+    ...(project.description?.trim() ? { description: project.description.trim() } : {}),
     path: `/work/${project.slug}/`,
-    ...(project.spread ? { spread: project.spread } : {}),
-    ...(project.side ? { side: project.side } : {}),
+    selected: project.selected,
+    number: '',
+    caption,
     cover,
     frames,
-    preview,
-    hero,
-    room: room(project),
-    sections,
+    strip: project.strip ? project.strip.map((n) => still(n, 'strip image')) : frames,
+    spreads,
+    credits: [{ role: project.role, name: 'Heni Barhoumi' }, ...project.credits],
   };
 }
 
-/** One spread of the running order: a single project, or two side by side. */
-export type Row = { layout: Exclude<Spread, 'pair'>; entry: Entry; side: 'left' | 'right' } | { layout: 'pair'; entries: [Entry, Entry] };
-
-/** The curated running order. Consecutive 'pair' projects share a row; a lone one becomes an offset. */
-export function runningOrder(entries: Entry[]): Row[] {
-  const picked = entries.filter((e) => e.spread);
-  const out: Row[] = [];
-  // Each layout alternates its own side, so two offsets (or two smalls) never mirror each other.
-  const turns: Record<string, number> = {};
-  for (let i = 0; i < picked.length; i++) {
-    const e = picked[i] as Entry;
-    const next = picked[i + 1];
-    if (e.spread === 'pair' && next?.spread === 'pair') {
-      out.push({ layout: 'pair', entries: [e, next] });
-      i += 1;
-      continue;
-    }
-    const layout = e.spread === 'pair' ? 'offset' : (e.spread as Exclude<Spread, 'pair'>);
-    // Offsets and smalls alternate sides unless the content says otherwise.
-    const turn = (turns[layout] = (turns[layout] ?? -1) + 1);
-    const side = e.side ?? (layout === 'small' ? (turn % 2 === 0 ? 'right' : 'left') : turn % 2 === 0 ? 'left' : 'right');
-    out.push({ layout, entry: e, side });
-  }
-  return out;
+/** Selected work first, then the archive, each numbered in that order. */
+export function number(entries: Entry[]): Entry[] {
+  const ordered = [...entries.filter((e) => e.selected), ...entries.filter((e) => !e.selected)];
+  ordered.forEach((e, i) => (e.number = String(i + 1).padStart(2, '0')));
+  return ordered;
 }

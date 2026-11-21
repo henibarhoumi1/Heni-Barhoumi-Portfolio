@@ -1,9 +1,7 @@
-import type { Room } from '../../build/projects.ts';
-import { endCredits } from './credits.ts';
-import { esc } from './html.ts';
+import { esc, localTime } from './html.ts';
 import type { BuildContext } from './types.ts';
 
-type Section = 'work' | 'about' | 'contact' | 'none';
+export type Section = 'work' | 'archive' | 'about' | 'contact' | 'none';
 
 interface PageOptions {
   /** Shown in the browser tab, before the site name. Leave empty on Work. */
@@ -15,20 +13,16 @@ interface PageOptions {
   /** Class on <body>. */
   bodyClass: string;
   main: string;
-  /** The room of the page. Bright unless a project says otherwise. */
-  room?: Room;
-  /** A project page: entering it takes the longer, darker transition. */
-  project?: boolean;
-  /** The end credits close the page. The Contact page is the credits, so it leaves them out. */
-  credits?: boolean;
-  /** Include the image viewer. */
-  viewer?: boolean;
+  /** Centre of the top bar. Defaults to (Back). */
+  top?: string;
+  /** A third of the way along the bottom bar. Defaults to (Archive). */
+  slot?: string;
+  /** The caption in the bottom bar, a little right of centre. */
+  caption?: string;
   /** Search and share image, absolute or site path. */
   image?: string;
   noIndex?: boolean;
 }
-
-const BRIGHT: Room = { bg: '#ffffff', ink: '#000000', dark: false };
 
 const NAV: { section: Section; label: string; href: string }[] = [
   { section: 'work', label: 'Work', href: '/' },
@@ -38,41 +32,30 @@ const NAV: { section: Section; label: string; href: string }[] = [
 
 /**
  * Runs in the head, before the page is drawn: marks scripting as available,
- * and on page changes names the image that should travel between the two
- * pages (scripts never block on this; browsers without view transitions just
- * load the page). Also returns Work to where it was left.
+ * and on the way into a project names the image that travels with you
+ * (browsers without cross-document view transitions simply load the page).
  */
-const HEAD_SCRIPT = `(()=>{var d=document.documentElement;d.classList.add('js');
-var store=function(k,v){try{v==null?sessionStorage.removeItem(k):sessionStorage.setItem(k,v)}catch(e){}};
-var read=function(k){try{return sessionStorage.getItem(k)}catch(e){return null}};
+const HEAD_SCRIPT = `(()=>{document.documentElement.classList.add('js');
 var path=function(u){try{return new URL(u,location.href).pathname}catch(e){return''}};
-var project=function(p){return /^\\/work\\/[^/]+\\/$/.test(p)};
-var name=function(el,n){if(el)el.style.viewTransitionName=n};
-var target='';
-addEventListener('click',function(e){var a=e.target&&e.target.closest&&e.target.closest('a[href]');if(a)target=a.href},true);
+var target='',clicked=null;
+addEventListener('click',function(e){var a=e.target&&e.target.closest&&e.target.closest('a[href]');if(a){target=a.href;clicked=a}},true);
 addEventListener('pageswap',function(e){
-var to=path(e.activation&&e.activation.entry?e.activation.entry.url:target);
-if(location.pathname==='/')store('work-y',String(scrollY));
-if(!e.viewTransition||!project(to))return;
-var from=document.querySelector('[data-vt="'+to+'"]');
-if(!from)return;
-document.querySelectorAll('[data-vt-self]').forEach(function(el){if(el!==from)name(el,'none')});
-name(from,'hero');});
-addEventListener('pagereveal',function(e){
-var nav=window.navigation&&navigation.activation;
-var from=path(nav&&nav.from?nav.from.url:document.referrer);
-var kind=nav?nav.navigationType:'';
-var y=read('work-y');
-if(location.pathname==='/'&&project(from)&&kind!=='traverse'&&kind!=='reload'&&y!==null)scrollTo(0,+y);
 if(!e.viewTransition)return;
-if(!project(from))return;
-var el=location.pathname==='/'?document.querySelector('[data-vt="'+from+'"]'):null;
-if(el){name(el,'hero');e.viewTransition.finished.then(function(){name(el,'')})}});
+var to=path(e.activation&&e.activation.entry?e.activation.entry.url:target);
+if(!/^\\/work\\/[^/]+\\/$/.test(to))return;
+var el=document.querySelector('.is-active[data-vt="'+to+'"]')||(clicked&&path(clicked.href)===to&&clicked.querySelector('img'));
+if(el)el.style.viewTransitionName='hero';});
 })()`;
+
+/** (Back) returns to the page you came from on this site, otherwise to Work. */
+export const back = (): string => `<a href="/" data-back>(Back)</a>`;
+
+export const archiveLink = (current = false): string => `<a href="/archive/"${current ? ' aria-current="page"' : ''}>(Archive)</a>`;
+
+export const clock = (ctx: BuildContext): string => `<span class="clock">(Tunis ${localTime(ctx)})</span>`;
 
 export function page(ctx: BuildContext, options: PageOptions): string {
   const { site, assets } = ctx;
-  const room = options.room ?? BRIGHT;
   const title = options.title ? `${options.title} | ${site.name}` : `${site.name} | ${site.role}`;
   const description = options.description ?? site.description;
   const canonical = `${site.url}${options.path}`;
@@ -89,17 +72,16 @@ export function page(ctx: BuildContext, options: PageOptions): string {
     sameAs: [site.contact.instagram.href],
   };
 
-  const nav = NAV.map(
-    (item) => `<a href="${item.href}"${item.section === options.section ? ' aria-current="page"' : ''}>${item.label}</a>`,
-  ).join('');
-
-  const classes = [room.dark ? 'room-dark' : 'room-bright', options.project ? 'is-project' : ''].filter(Boolean).join(' ');
+  const nav = (label: string) =>
+    `<nav class="bar__nav" aria-label="${label}">${NAV.map(
+      (item) => `<a href="${item.href}"${item.section === options.section ? ' aria-current="page"' : ''}>${item.label}</a>`,
+    ).join('')}</nav>`;
 
   return `<!doctype html>
-<html lang="en" class="${classes}" style="--room:${room.bg};--ink:${room.ink}">
+<html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>${esc(title)}</title>
 <meta name="description" content="${esc(description)}">
 <link rel="canonical" href="${esc(canonical)}">
@@ -110,41 +92,31 @@ ${options.noIndex ? '<meta name="robots" content="noindex">' : ''}
 <meta property="og:description" content="${esc(description)}">
 <meta property="og:url" content="${esc(canonical)}">
 ${imageUrl ? `<meta property="og:image" content="${esc(imageUrl)}">\n<meta name="twitter:card" content="summary_large_image">` : ''}
-<meta name="theme-color" content="${room.bg}">
+<meta name="theme-color" content="#ffffff">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 ${ctx.preload.map((file) => `<link rel="preload" href="/fonts/${file}" as="font" type="font/${file.endsWith('2') ? 'woff2' : 'woff'}" crossorigin>`).join('\n')}
 <style>${ctx.fontCss}</style>
 <link rel="stylesheet" href="${assets.css}">
-<link rel="expect" href="#main" blocking="render">
 <script>${HEAD_SCRIPT}</script>
 <script type="module" src="${assets.js}"></script>
 <script type="application/ld+json">${JSON.stringify(person)}</script>
 </head>
 <body class="${options.bodyClass}">
 <a class="skip" href="#main">Skip to content</a>
-<header class="masthead" data-masthead>
-  <a class="masthead__name" href="/">${esc(site.name)}</a>
-  <p class="masthead__slate" data-slate></p>
-  <nav class="masthead__nav" aria-label="Main">${nav}</nav>
+<header class="bar bar--top">
+  <a class="bar__name" href="/">${esc(site.name)}</a>
+  <div class="bar__mid">${options.top ?? back()}</div>
+  ${nav('Main')}
 </header>
 ${options.main}
-${options.credits === false ? '' : endCredits(ctx, { level: 'h2' })}
-${options.viewer ? viewer() : ''}
+<footer class="bar bar--bottom">
+  <a class="bar__name" href="/">${esc(site.name)}</a>
+  <div class="bar__slot">${options.slot ?? archiveLink(options.section === 'archive')}</div>
+  <p class="bar__caption" data-bar-caption>${options.caption ?? ''}</p>
+  ${nav('Footer')}
+</footer>
 </body>
 </html>
 `;
-}
-
-/** Full-screen image viewer, filled by scripts/viewer.ts. */
-function viewer(): string {
-  return `<dialog class="viewer" data-viewer aria-label="Image viewer">
-  <p class="viewer__caption" data-viewer-caption></p>
-  <button type="button" class="viewer__close" data-viewer-close>Close</button>
-  <div class="viewer__stage" data-viewer-stage></div>
-  <button type="button" class="viewer__step viewer__step--prev" data-viewer-prev><span>Previous</span></button>
-  <button type="button" class="viewer__step viewer__step--next" data-viewer-next><span>Next</span></button>
-  <div class="viewer__strip" data-viewer-strip></div>
-  <div hidden data-viewer-preload></div>
-</dialog>`;
 }

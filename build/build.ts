@@ -11,13 +11,14 @@ import { site } from '../content/site.ts';
 import { fontCss, fonts } from '../src/fonts.ts';
 import { renderAbout } from '../src/templates/about.ts';
 import { renderContact } from '../src/templates/contact.ts';
+import { renderArchive } from '../src/templates/archive.ts';
+import { renderHome } from '../src/templates/home.ts';
 import { renderNotFound } from '../src/templates/not-found.ts';
 import { renderProject } from '../src/templates/project.ts';
 import type { BuildContext } from '../src/templates/types.ts';
-import { renderWork } from '../src/templates/work.ts';
 import { bundleAssets } from './assets.ts';
 import { processFolder, shareImage, touchIcon } from './images.ts';
-import { type Entry, resolve, runningOrder } from './projects.ts';
+import { type Entry, number, resolve } from './projects.ts';
 import { processClips } from './videos.ts';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -44,17 +45,15 @@ export async function buildSite({ minify = true } = {}): Promise<void> {
     const clips = await processClips(photosDir, project.slug, outDir);
     entries.push(resolve(project, frames, clips));
   }
-  const [portrait] = await processFolder(photosDir, '_portrait', { whiten: true }, cacheDir, outDir);
+  const [portrait] = await processFolder(photosDir, '_portrait', { whiten: true, trim: true }, cacheDir, outDir);
 
-  const rows = runningOrder(entries);
-  const curated = rows.flatMap((r) => (r.layout === 'pair' ? r.entries : [r.entry]));
-  const sequence = [...curated, ...entries.filter((e) => !curated.includes(e))];
-  const everything = [...entries].sort((a, b) => b.year - a.year);
+  const ordered = number(entries);
+  const selected = ordered.filter((e) => e.selected);
 
   // Share card and home-screen icon.
   let ogImage: string | undefined;
-  if (sequence.length > 0) {
-    const covers = sequence.slice(0, 5).map((e) => path.join(outDir, e.cover.jpg.url));
+  if (selected.length > 0) {
+    const covers = selected.slice(0, 5).map((e) => path.join(outDir, e.cover.jpg.url));
     await shareImage(path.join(root, 'src', 'brand', 'share.svg'), covers, path.join(outDir, 'share.jpg'));
     ogImage = '/share.jpg';
   }
@@ -63,10 +62,8 @@ export async function buildSite({ minify = true } = {}): Promise<void> {
   const assets = await bundleAssets(root, outDir, minify);
   const ctx: BuildContext = {
     site,
-    entries,
-    rows,
-    sequence,
-    everything,
+    entries: ordered,
+    selected,
     portrait,
     assets,
     fontCss: fontCss(),
@@ -76,10 +73,11 @@ export async function buildSite({ minify = true } = {}): Promise<void> {
   };
 
   const pages = new Map<string, string>();
-  pages.set('/', renderWork(ctx));
+  pages.set('/', renderHome(ctx));
+  pages.set('/archive/', renderArchive(ctx));
   pages.set('/about/', renderAbout(ctx));
   pages.set('/contact/', renderContact(ctx));
-  for (const entry of entries) pages.set(entry.path, renderProject(ctx, entry));
+  for (const entry of ordered) pages.set(entry.path, renderProject(ctx, entry));
 
   for (const [route, html] of pages) {
     const file = path.join(outDir, route, 'index.html');
