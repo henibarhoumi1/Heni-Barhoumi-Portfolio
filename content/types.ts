@@ -48,6 +48,36 @@ export interface Project {
   credits: Credit[];
 
   /**
+   * 'series' (default): a personal photographic series, shown as spreads.
+   * 'case': commercial or film work, shown as a case study with the sections
+   * below. Every section is optional and appears only when filled.
+   */
+  kind?: 'series' | 'case';
+  /**
+   * Heni's exact roles when there is more than one, e.g. ['Director of photography', 'Editor'].
+   * Use the words of the credit as agreed: never a bigger role than the one held.
+   */
+  roles?: string[];
+  /** Case study: what the project was for and what was asked. */
+  context?: string;
+  /** Case study: the visual idea. */
+  direction?: string;
+  /** Case study: how it was made. */
+  execution?: string;
+  /** Case study: what Heni himself did on it. */
+  contribution?: string;
+
+  /**
+   * False keeps the project out of the published site entirely (no page, no
+   * sitemap, no listing) until its assets, permissions and credits are final.
+   * Default true.
+   */
+  published?: boolean;
+
+  /** A plain description of each image for people who cannot see it, by file name. */
+  alt?: Record<string, string>;
+
+  /**
    * On the Work strip, in the order of this file. Leave false to show the
    * project in the Archive only; its page still exists.
    */
@@ -79,7 +109,7 @@ export interface Project {
 
 export interface Site {
   name: string;
-  /** Used in the page title and search results. */
+  /** Used in the page title, the header and search results. */
   role: string;
   location: string;
   /** IANA time zone for the local time. */
@@ -93,11 +123,20 @@ export interface Site {
     /** Phone number with country code, written as it should be read: '+216 26 191 555'. */
     whatsapp?: string;
     instagram: { handle: string; href: string };
-    /** One sentence on who should write, shown on the Contact page. */
+    /** Heading of the Contact page. */
+    action: string;
+    /** One sentence on the work Heni takes on, shown on the Contact page. */
     invite: string;
   };
   about: {
-    /** First person, plain, no titles and no project names. */
+    /** First person, in Heni's own words. */
     paragraphs: string[];
+    /**
+     * Selected experience, newest first. Only entries Heni confirms, with the
+     * exact role. The list is not shown while it is empty.
+     */
+    experience: { year: string; what: string; role: string; href?: string }[];
   };
+  /** Other places Heni's work lives, e.g. a production company. Not shown while empty. */
+  elsewhere: { label: string; href: string; note?: string }[];
 }

@@ -12,7 +12,8 @@
     "build": "tsx build/build.ts",
     "preview": "tsx build/serve.ts",
     "typecheck": "tsc --noEmit",
-    "deploy": "npm run build && wrangler deploy"
+    "deploy": "npm run build && wrangler deploy",
+    "test:case": "tsx test/case-study.ts"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",

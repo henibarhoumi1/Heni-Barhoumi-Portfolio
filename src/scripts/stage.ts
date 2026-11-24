@@ -7,17 +7,18 @@ import { createWarp, type Warp } from './warp.ts';
  * small on either side of it. Between two whole positions the leaving print
  * shrinks as the arriving one grows, so the row always reads as one object.
  *
- * Wheel, trackpad, drag, swipe and the arrow keys move `f`; it eases to the
- * nearest whole print when you let go. The large print is drawn by WebGL
- * (warp.ts) as a photograph slightly bent in the hand; without WebGL it is
- * the plain image.
+ * Every print keeps its own proportions; only its height changes. Wheel,
+ * trackpad, drag, swipe and the arrow keys move `f`; it eases to the nearest
+ * whole print when you let go. Any print opens its project. The large print
+ * is drawn by WebGL (warp.ts) slightly bent, like a photograph held in the
+ * hand; without WebGL it is the plain image.
  */
 
 interface Project {
   number: string;
+  title: string;
   caption: string;
   path: string;
-  title: string;
 }
 
 interface Item {
@@ -91,10 +92,10 @@ export function initStage(): void {
   for (const item of items) item.link.tabIndex = -1;
 
   const numEl = stage.querySelector<HTMLElement>('[data-num]');
+  const titleEl = stage.querySelector<HTMLElement>('[data-title]');
   const textEl = stage.querySelector<HTMLElement>('[data-text]');
   const captionBox = stage.querySelector<HTMLElement>('.stage__caption');
   const live = stage.querySelector<HTMLElement>('[data-live]');
-  const barCaption = document.querySelector<HTMLElement>('[data-bar-caption]');
   const still = prefersStill();
 
   stage.classList.add('is-live');
@@ -103,25 +104,35 @@ export function initStage(): void {
   let W = 0;
   let H = 0;
   let smallH = 0;
-  let smallW = 0;
+  /** The average width of a small print: the unit of dragging and scrolling. */
+  let unit = 0;
   let bigH = 0;
   let gap = 0;
   let x0 = 0;
   let cy = 0;
   let maxBigW = 0;
+  let capGap = 0;
   const measure = () => {
     W = stage.clientWidth;
     H = stage.clientHeight;
     const narrow = W < 700;
-    bigH = Math.round(H * (narrow ? 0.4 : 0.4));
+    bigH = Math.round(H * 0.4);
     smallH = Math.round(H * (narrow ? 0.14 : 0.185));
-    smallW = Math.round(smallH * 0.75);
+    unit = smallH * (items.reduce((a, i) => a + i.ratio, 0) / items.length);
     gap = Math.max(6, Math.round(smallH * 0.085));
     x0 = Math.round(W * (narrow ? 0.12 : 0.195));
-    cy = Math.round(H * 0.505);
     maxBigW = W - x0 - (narrow ? W * 0.06 : W * 0.3);
-    // A wide print is held to the width the slot allows.
-    for (const item of items) item.el.style.setProperty('--r', String(item.ratio));
+
+    // Fit caption and large print between the header and the footer, centred when there is room.
+    const top = document.querySelector('.bar--top')?.getBoundingClientRect().bottom ?? 0;
+    const foot = document.querySelector('.bar--bottom')?.getBoundingClientRect().top ?? H;
+    const capH = captionBox?.offsetHeight ?? 0;
+    capGap = H * 0.035;
+    const room = foot - top - 24 - capH - capGap;
+    if (bigH > room) bigH = Math.max(Math.round(H * 0.24), Math.round(room));
+    const lowest = top + 12 + capH + capGap + bigH / 2;
+    const highest = foot - 12 - bigH / 2;
+    cy = Math.round(Math.min(Math.max(H * 0.505, lowest), Math.max(lowest, highest)));
   };
   const bigSize = (item: Item): [number, number] => {
     let w = bigH * item.ratio;
@@ -139,7 +150,6 @@ export function initStage(): void {
   let target = f;
   let lastF = f;
   let velocity = 0;
-  let flex = 0;
   let activeIndex = -1;
   let activeProject = -1;
 
@@ -180,10 +190,10 @@ export function initStage(): void {
     if (item.project !== activeProject) {
       activeProject = item.project;
       const p = projects[item.project] as Project;
-      if (numEl) numEl.textContent = `(${p.number})`;
+      if (numEl) numEl.textContent = p.number;
+      if (titleEl) titleEl.textContent = p.title;
       if (textEl) textEl.textContent = p.caption;
-      if (barCaption) barCaption.textContent = p.caption;
-      if (live) live.textContent = `${p.number}, ${p.caption}`;
+      if (live) live.textContent = `${p.title}. ${p.caption}.`;
     }
   };
 
@@ -197,7 +207,8 @@ export function initStage(): void {
         const item = items[mod(v, N)] as Item;
         const g = smooth(Math.max(0, 1 - Math.abs(v - f)));
         const [bw, bh] = bigSize(item);
-        s = [smallW + (bw - smallW) * g, smallH + (bh - smallH) * g, g];
+        const sw = smallH * item.ratio;
+        s = [sw + (bw - sw) * g, smallH + (bh - smallH) * g, g];
         sizes.set(v, s);
       }
       return s;
@@ -231,15 +242,14 @@ export function initStage(): void {
     // Number and caption stand above the large print, left-aligned to it.
     const active = items[mod(Math.round(f), N)] as Item;
     const [, ah] = bigSize(active);
-    if (captionBox) captionBox.style.transform = `translate3d(${x0}px,${(cy - ah / 2 - H * 0.043).toFixed(1)}px,0) translateY(-100%)`;
+    if (captionBox) captionBox.style.transform = `translate3d(${x0}px,${(cy - ah / 2 - capGap).toFixed(1)}px,0) translateY(-100%)`;
     setActive(mod(Math.round(f), N));
 
-    // The print flexes while it moves, and settles flat-ish when it stops.
     const speed = dt > 0 ? (f - lastF) / dt : 0;
     lastF = f;
     velocity += (speed - velocity) * 0.25;
-    flex = still ? 0 : Math.max(-0.14, Math.min(0.14, velocity * 0.035));
-    warp?.draw(drawn, W, H, flex);
+    // The print keeps its bend but does not flex as it moves: quiet, not a demo.
+    warp?.draw(drawn, W, H, 0);
   };
 
   // Motion.
@@ -279,9 +289,9 @@ export function initStage(): void {
     'wheel',
     (e) => {
       e.preventDefault();
-      const unit = e.deltaMode === 1 ? 32 : e.deltaMode === 2 ? H : 1;
-      const delta = (Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY) * unit;
-      target = Math.max(f - 8, Math.min(f + 8, target + delta / ((smallW + gap) * 1.2)));
+      const scale = e.deltaMode === 1 ? 32 : e.deltaMode === 2 ? H : 1;
+      const delta = (Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY) * scale;
+      target = Math.max(f - 8, Math.min(f + 8, target + delta / ((unit + gap) * 1.2)));
       window.clearTimeout(snap);
       snap = window.setTimeout(() => go(Math.round(target)), 120);
       request();
@@ -314,7 +324,7 @@ export function initStage(): void {
       // Capture only once it is a drag, so a plain click still reaches its print.
       stage.setPointerCapture?.(e.pointerId);
     }
-    f = startF - dx / (smallW + gap);
+    f = startF - dx / (unit + gap);
     target = f;
     samples.push({ x: e.clientX, t: e.timeStamp });
     if (samples.length > 5) samples.shift();
@@ -330,12 +340,12 @@ export function initStage(): void {
     const a = samples[0];
     const b = samples[samples.length - 1];
     const v = a && b && b.t > a.t ? (b.x - a.x) / (b.t - a.t) : 0; // px per ms
-    go(Math.round(f - (v * 180) / (smallW + gap)));
+    go(Math.round(f - (v * 180) / (unit + gap)));
   };
   stage.addEventListener('pointerup', release);
   stage.addEventListener('pointercancel', release);
 
-  // A small print comes to the slot; the large one opens its project.
+  // Any print opens its project; the large one lies flat first so it can travel.
   stage.addEventListener(
     'click',
     (e) => {
@@ -351,16 +361,8 @@ export function initStage(): void {
     if (!link) return;
     const index = items.findIndex((i) => i.link === link);
     if (index < 0) return;
-    if (index === activeIndex && Math.abs(target - f) < 0.02) {
-      stage.classList.add('is-leaving');
-      write(STORE, String(index));
-      return;
-    }
-    e.preventDefault();
-    // The nearest way round the loop.
-    const here = Math.round(target);
-    const d = mod(index - mod(here, N) + N / 2, N) - N / 2;
-    go(here + d);
+    stage.classList.add('is-leaving');
+    write(STORE, String(index));
   });
 
   document.addEventListener('keydown', (e) => {

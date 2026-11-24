@@ -6,7 +6,8 @@
 import { cp, mkdir, rm, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { projects } from '../content/projects.ts';
+import { projects as content } from '../content/projects.ts';
+import type { Project } from '../content/types.ts';
 import { site } from '../content/site.ts';
 import { fontCss, fonts } from '../src/fonts.ts';
 import { renderAbout } from '../src/templates/about.ts';
@@ -22,8 +23,22 @@ import { type Entry, number, resolve } from './projects.ts';
 import { processClips } from './videos.ts';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const outDir = path.join(root, 'dist');
-const photosDir = path.join(root, 'photos');
+// The test of the case-study template (test/case-study.ts) builds into a
+// separate folder with its own photos and one sample project; a normal build
+// never sets these.
+const outDir = process.env.OUT_DIR ? path.resolve(process.env.OUT_DIR) : path.join(root, 'dist');
+const photosDir = process.env.PHOTOS_DIR ? path.resolve(process.env.PHOTOS_DIR) : path.join(root, 'photos');
+
+/** Published projects, plus drafts when DRAFTS=1 (never in production), plus a test fixture when asked. */
+async function projectList(): Promise<Project[]> {
+  const drafts = process.env.DRAFTS === '1';
+  const list = content.filter((p) => drafts || p.published !== false);
+  if (process.env.FIXTURE) {
+    const fixture = (await import(path.resolve(process.env.FIXTURE))) as { projects: Project[] };
+    list.push(...fixture.projects);
+  }
+  return list;
+}
 const cacheDir = path.join(root, '.cache', 'images');
 
 export async function buildSite({ minify = true } = {}): Promise<void> {
@@ -32,6 +47,7 @@ export async function buildSite({ minify = true } = {}): Promise<void> {
   await mkdir(outDir, { recursive: true });
   await cp(path.join(root, 'public'), outDir, { recursive: true });
 
+  const projects = await projectList();
   const slugs = new Set<string>();
   const entries: Entry[] = [];
   for (const project of projects) {

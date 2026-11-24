@@ -5,15 +5,19 @@ Personal site of Heni Barhoumi, creative director and filmmaker, Tunis.
 A static site with its own small build. No framework runtime ships to the
 browser: the pages are plain HTML, one stylesheet and a small script.
 
-## The idea: prints on a white table
+## The idea
 
-One white page, black type, and the photographs; nothing else carries colour.
-Work is a single row of prints across the middle of the window. The print at
-the slot is large and slightly bent, like a photograph held in the hand, with
-its number and caption above it. Scroll, drag, swipe or use the arrow keys to
-move along the row; choose the large print to open its project. Projects are
-four-column spreads, one screen each. The Archive lays out every image with a
-large pane beside it.
+Heni Barhoumi, Creative Director & Filmmaker, based in Tunis. One white page,
+black type, and the photographs; nothing else carries colour. The name and
+role head every page. Work is a single row of photographs, each in its own
+proportions; the one at the slot is large and slightly bent, like a print in
+the hand, with its project's number, title and details above it. Scroll,
+drag, swipe or use the arrow keys to move along; any photograph opens its
+project. Projects are spreads on a four-column grid (two columns on tablets,
+one on phones). The Archive groups every image under its project.
+
+Type: Heros for names, titles, navigation and reading text; Source Code Pro,
+small and in capitals, for labels only (numbers, years, places, field names).
 
 ## Run it
 
@@ -50,11 +54,11 @@ public/        Copied as-is: fonts, favicon, Cloudflare _headers
 
 ## Pages
 
-- `/` Work: the row of prints from every selected project
-- `/work/<slug>/` a project, as spreads: opening, pairs, singles, small-beside-large, then credits and Next
-- `/archive/` every image of every project, numbered by project, with a large pane
-- `/about/` the portrait on the right half, the words low in the second column
-- `/contact/` label and value in columns, a row of the work along the foot
+- `/` Work: the row of photographs from every selected project
+- `/work/<slug>/` a project: title and facts (year, client, place, type, Heni's role), then spreads, credits and Next
+- `/archive/` every image, grouped by project, uncropped; a pane on large screens, a full-screen viewer on phones and tablets
+- `/about/` name and role, Heni's own words, selected experience (when confirmed), the portrait
+- `/contact/` "Discuss a project": the email large, WhatsApp, the kind of work, where Heni is
 
 ## Adding a project
 
@@ -65,14 +69,36 @@ The fields, all described in `content/types.ts`:
 
 | Field | What it does |
 | --- | --- |
-| `title`, `year`, `type`, `role` | Make the caption: title, type, place, year. `role` is Heni's role. |
-| `client`, `place`, `description` | Optional. The description sits low on the opening spread; only words that already exist. |
-| `credits` | Collaborators. Heni's role is added first automatically. |
-| `selected` | `true` puts the project on the Work strip, in file order, numbered (01), (02)... `false` keeps it in the Archive only. |
+| `title`, `year`, `type`, `role` | The title, and the facts beside it. `role` is Heni's role, written exactly as credited. |
+| `roles` | Several roles, e.g. `['Director of photography', 'Editor']`. Never a bigger role than the one held. |
+| `client`, `place`, `description` | Optional. Only words that already exist; nothing is invented. |
+| `credits` | Collaborators. Heni's role(s) are added first automatically. |
+| `alt` | A plain description of each image, by file name, for people who cannot see it. |
+| `selected` | `true` puts the project on the Work strip, in file order, numbered 01, 02... `false` keeps it in the Archive only. |
+| `published` | `false` keeps a project off the site entirely (no page, no listing, no sitemap) until its assets, permissions and credits are final. `DRAFTS=1 npm run dev` shows drafts locally. |
 | `cover` | The image used in the Archive pane, on Contact, for Next and when sharing. Defaults to the first. |
 | `strip` | Which images run on the Work strip. Defaults to all. |
 | `spreads` | Optional. The page spread by spread (`opening`, `pair`, `single`, `small-large`, `film`). Without it the page is laid out automatically from the images. |
 | `film` | A full film from Vimeo. |
+
+### Commercial and film work: case studies
+
+Set `kind: 'case'` and fill whichever of these exist: `description` (Project),
+`context`, `direction` (Creative direction), `execution`, `contribution`
+(Heni's contribution). Each becomes a numbered section after the opening,
+followed by Final work and Credits; empty ones are left out and the numbers
+close up. Keep it `published: false` until the client has agreed and the
+credits are confirmed.
+
+`npm run test:case` checks the template with a placeholder project
+(`test/fixtures/case-study.ts`) built into `.cache/case-test/`; it never
+touches `dist/`.
+
+### About and Contact
+
+In `content/site.ts`: `about.experience` (year, what, exact role) and
+`elsewhere` (another place Heni's work lives, such as a production company)
+are hidden while empty. Fill them only with confirmed entries.
 
 ## Film and clips
 
@@ -96,11 +122,10 @@ with no change to the code.
 
 ## Typefaces
 
-Set in `src/fonts.ts`. Source Code Pro (SIL Open Font License) for everything
-the site says about itself, small and in capitals; TeX Gyre Heros (GUST Font
-License) for the few lines of reading text. Licences are in `public/fonts/`.
-To use other fonts, put the files in `public/fonts/` and change the file names
-there.
+Set in `src/fonts.ts`. TeX Gyre Heros (GUST Font License) for names, titles,
+navigation and reading text; Source Code Pro (SIL Open Font License) for small
+labels. Licences are in `public/fonts/`. To use other fonts, put the files in
+`public/fonts/` and change the file names there.
 
 ## Deploy
 

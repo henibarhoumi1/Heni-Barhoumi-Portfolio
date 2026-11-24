@@ -1,3 +1,4 @@
+import type { Frame } from '../../build/images.ts';
 import { esc, localTime } from './html.ts';
 import type { BuildContext } from './types.ts';
 
@@ -13,19 +14,24 @@ interface PageOptions {
   /** Class on <body>. */
   bodyClass: string;
   main: string;
-  /** Centre of the top bar. Defaults to (Back). */
-  top?: string;
-  /** A third of the way along the bottom bar. Defaults to (Archive). */
-  slot?: string;
-  /** The caption in the bottom bar, a little right of centre. */
-  caption?: string;
+  /** Second column of the header. Defaults to the place and local time. */
+  mid?: string;
+  /** The middle of the footer. */
+  hint?: string;
+  /** On Work the name and role are the page's main heading. */
+  brandHeading?: boolean;
   /** Search and share image, absolute or site path. */
   image?: string;
+  /** The first large image, fetched early so the page appears complete sooner. */
+  preload?: { frame: Frame; sizes: string };
+  /** Extra structured data for this page. */
+  data?: object[];
   noIndex?: boolean;
 }
 
 const NAV: { section: Section; label: string; href: string }[] = [
   { section: 'work', label: 'Work', href: '/' },
+  { section: 'archive', label: 'Archive', href: '/archive/' },
   { section: 'about', label: 'About', href: '/about/' },
   { section: 'contact', label: 'Contact', href: '/contact/' },
 ];
@@ -47,12 +53,14 @@ var el=document.querySelector('.is-active[data-vt="'+to+'"]')||(clicked&&path(cl
 if(el)el.style.viewTransitionName='hero';});
 })()`;
 
-/** (Back) returns to the page you came from on this site, otherwise to Work. */
-export const back = (): string => `<a href="/" data-back>(Back)</a>`;
+/** Back returns to the page you came from on this site, otherwise to Work. */
+export const back = (): string => `<a href="/" class="bar__back" data-back>Back</a>`;
 
-export const archiveLink = (current = false): string => `<a href="/archive/"${current ? ' aria-current="page"' : ''}>(Archive)</a>`;
+/** Where Heni is, and the time there. */
+export const place = (ctx: BuildContext): string =>
+  `<p class="bar__place">${esc(ctx.site.location)} <span class="label clock">${localTime(ctx)}</span></p>`;
 
-export const clock = (ctx: BuildContext): string => `<span class="clock">(Tunis ${localTime(ctx)})</span>`;
+const srcset = (variants: { url: string; width: number }[]) => variants.map((v) => `${v.url} ${v.width}w`).join(', ');
 
 export function page(ctx: BuildContext, options: PageOptions): string {
   const { site, assets } = ctx;
@@ -65,17 +73,24 @@ export function page(ctx: BuildContext, options: PageOptions): string {
   const person = {
     '@context': 'https://schema.org',
     '@type': 'Person',
+    '@id': `${site.url}/#person`,
     name: site.name,
     url: site.url,
-    jobTitle: site.role,
+    jobTitle: site.role.replace('&', 'and'),
+    ...(site.contact.email ? { email: `mailto:${site.contact.email}` } : {}),
     address: { '@type': 'PostalAddress', addressLocality: 'Tunis', addressCountry: 'TN' },
-    sameAs: [site.contact.instagram.href],
+    sameAs: [site.contact.instagram.href, ...site.elsewhere.map((e) => e.href)],
   };
+  const data = [person, ...(options.data ?? [])];
 
-  const nav = (label: string) =>
-    `<nav class="bar__nav" aria-label="${label}">${NAV.map(
-      (item) => `<a href="${item.href}"${item.section === options.section ? ' aria-current="page"' : ''}>${item.label}</a>`,
-    ).join('')}</nav>`;
+  const nav = `<nav class="bar__nav" aria-label="Main">${NAV.map(
+    (item) => `<a href="${item.href}"${item.section === options.section ? ' aria-current="page"' : ''}>${item.label}</a>`,
+  ).join('')}</nav>`;
+
+  const idTag = options.brandHeading ? 'h1' : 'div';
+  const preload = options.preload
+    ? `<link rel="preload" as="image" type="image/avif" imagesrcset="${srcset(options.preload.frame.avif)}" imagesizes="${esc(options.preload.sizes)}" fetchpriority="high">`
+    : '';
 
   return `<!doctype html>
 <html lang="en">
@@ -96,25 +111,25 @@ ${imageUrl ? `<meta property="og:image" content="${esc(imageUrl)}">\n<meta name=
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 ${ctx.preload.map((file) => `<link rel="preload" href="/fonts/${file}" as="font" type="font/${file.endsWith('2') ? 'woff2' : 'woff'}" crossorigin>`).join('\n')}
+${preload}
 <style>${ctx.fontCss}</style>
 <link rel="stylesheet" href="${assets.css}">
 <script>${HEAD_SCRIPT}</script>
 <script type="module" src="${assets.js}"></script>
-<script type="application/ld+json">${JSON.stringify(person)}</script>
+${data.map((d) => `<script type="application/ld+json">${JSON.stringify(d).replace(/</g, '\\u003c')}</script>`).join('\n')}
 </head>
 <body class="${options.bodyClass}">
 <a class="skip" href="#main">Skip to content</a>
 <header class="bar bar--top">
-  <a class="bar__name" href="/">${esc(site.name)}</a>
-  <div class="bar__mid">${options.top ?? back()}</div>
-  ${nav('Main')}
+  <${idTag} class="bar__id"><a class="bar__name" href="/">${esc(site.name)}</a> <span class="bar__role">${esc(site.role)}</span></${idTag}>
+  <div class="bar__mid">${options.mid ?? place(ctx)}</div>
+  ${nav}
 </header>
 ${options.main}
 <footer class="bar bar--bottom">
-  <a class="bar__name" href="/">${esc(site.name)}</a>
-  <div class="bar__slot">${options.slot ?? archiveLink(options.section === 'archive')}</div>
-  <p class="bar__caption" data-bar-caption>${options.caption ?? ''}</p>
-  ${nav('Footer')}
+  <p class="bar__copy">©&nbsp;${ctx.year} ${esc(site.name)}</p>
+  ${options.hint ? `<p class="bar__hint label">${options.hint}</p>` : ''}
+  ${site.contact.email ? `<a class="bar__mail" href="mailto:${esc(site.contact.email)}">${esc(site.contact.email)}</a>` : ''}
 </footer>
 </body>
 </html>

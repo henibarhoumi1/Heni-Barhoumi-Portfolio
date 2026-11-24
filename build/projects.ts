@@ -26,10 +26,15 @@ export type Page =
 
 export interface Entry {
   slug: string;
+  kind: 'series' | 'case';
   title: string;
   year: number;
   type: string;
   role: string;
+  /** Heni's roles as shown: `roles` when given, otherwise `role`. */
+  roles: string[];
+  /** Case-study sections that have content, in reading order. */
+  sections: { label: string; text: string }[];
   client?: string;
   place?: string;
   description?: string;
@@ -38,7 +43,7 @@ export interface Entry {
   selected: boolean;
   /** Two digits, in order of the site: selected work first. Set by number(). */
   number: string;
-  /** One line that names the work: title, type, place, year. */
+  /** One line under the title: type, place, year. */
   caption: string;
   cover: Frame;
   frames: Frame[];
@@ -47,6 +52,8 @@ export interface Entry {
   spreads: Page[];
   /** Heni's role first, then the collaborators. */
   credits: Credit[];
+  /** Text alternative for each image, by file name. */
+  alt: (frame: Frame) => string;
 }
 
 /** Accepts vimeo.com/123, vimeo.com/123/abcdef, player.vimeo.com/video/123?h=abcdef. */
@@ -141,14 +148,28 @@ export function resolve(project: Project, frames: Frame[], clips: Map<string, Cl
     }
   });
 
-  const caption = [project.title, project.type, project.place].filter(Boolean).join(', ') + ` ©${project.year}`;
+  const caption = [project.type, project.place, String(project.year)].filter(Boolean).join(', ');
+  const roles = project.roles?.length ? project.roles : [project.role];
+  const said = (text?: string) => text?.trim() ?? '';
+  const sections = [
+    { label: 'Project', text: said(project.description) },
+    { label: 'Context', text: said(project.context) },
+    { label: 'Creative direction', text: said(project.direction) },
+    { label: 'Execution', text: said(project.execution) },
+    { label: 'Heni’s contribution', text: said(project.contribution) },
+  ].filter((s) => s.text !== '');
+  const alts = project.alt ?? {};
+  for (const name of Object.keys(alts)) still(name, 'alt text for');
 
   return {
     slug: project.slug,
+    kind: project.kind ?? 'series',
     title: project.title,
     year: project.year,
     type: project.type,
     role: project.role,
+    roles,
+    sections,
     ...(project.client ? { client: project.client } : {}),
     ...(project.place ? { place: project.place } : {}),
     ...(project.description?.trim() ? { description: project.description.trim() } : {}),
@@ -160,7 +181,8 @@ export function resolve(project: Project, frames: Frame[], clips: Map<string, Cl
     frames,
     strip: project.strip ? project.strip.map((n) => still(n, 'strip image')) : frames,
     spreads,
-    credits: [{ role: project.role, name: 'Heni Barhoumi' }, ...project.credits],
+    credits: [...roles.map((role) => ({ role, name: 'Heni Barhoumi' })), ...project.credits],
+    alt: (frame) => alts[frame.name] ?? project.title,
   };
 }
 
