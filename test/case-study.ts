@@ -27,7 +27,7 @@ execFileSync(process.execPath, ['--import', 'tsx', path.join(root, 'build', 'bui
 });
 
 const html = readFileSync(path.join(out, 'work', 'template-test', 'index.html'), 'utf8');
-const expect = ['01 Project', '02 Context', '03 Creative direction', '04 Execution', '05 Heni’s contribution', '06 Final work', '07 Credits'];
+const expect = ['(01) Project', '(02) Context', '(03) Creative direction', '(04) Execution', '(05) Heni’s contribution', '(06) Final work', '(07) Credits'];
 let at = -1;
 for (const label of expect) {
   const i = html.indexOf(label);

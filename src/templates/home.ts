@@ -25,7 +25,7 @@ export function renderHome(ctx: BuildContext): string {
   const main = `<main id="main" class="stage" data-stage>
 <p class="sr">Selected work. Use the arrow keys to move along the row, and Enter to open a project.</p>
 <div class="stage__caption" aria-hidden="true">
-  <p class="label" data-num>${first ? first.number : ''}</p>
+  <p class="label" data-num>${first ? `(${first.number})` : ''}</p>
   <p class="stage__title" data-title>${first ? esc(first.title) : ''}</p>
   <p class="label" data-text>${first ? esc(first.caption) : ''}</p>
 </div>

@@ -19,11 +19,11 @@ ${picture(portrait, { alt: `Portrait of ${site.name}`, sizes: `(max-width: 767px
 
   const experience = site.about.experience.length
     ? `<div class="about__block">
-<h2 class="label">Selected experience</h2>
+<h2 class="marker">(Selected experience)</h2>
 <dl class="facts facts--list">${site.about.experience
         .map(
           (x) =>
-            `<div><dt class="label">${esc(x.year)}</dt><dd>${x.href ? `<a href="${esc(x.href)}" rel="noopener" target="_blank">${esc(x.what)}</a>` : esc(x.what)}, <span class="role">${esc(x.role)}</span></dd></div>`,
+            `<div><dt>(${esc(x.year)})</dt><dd>${x.href ? `<a href="${esc(x.href)}" rel="noopener" target="_blank">${esc(x.what)}</a>` : esc(x.what)}, <span class="role">${esc(x.role)}</span></dd></div>`,
         )
         .join('')}</dl>
 </div>`
@@ -31,7 +31,7 @@ ${picture(portrait, { alt: `Portrait of ${site.name}`, sizes: `(max-width: 767px
 
   const elsewhere = site.elsewhere.length
     ? `<div class="about__block">
-<h2 class="label">Elsewhere</h2>
+<h2 class="marker">(Elsewhere)</h2>
 <ul>${site.elsewhere.map((e) => `<li><a href="${esc(e.href)}" rel="noopener" target="_blank">${esc(e.label)}</a>${e.note ? `, ${esc(e.note)}` : ''}</li>`).join('')}</ul>
 </div>`
     : '';
@@ -41,7 +41,7 @@ ${picture(portrait, { alt: `Portrait of ${site.name}`, sizes: `(max-width: 767px
   const main = `<main id="main" class="about">
 <section class="spread spread--about">
 <div class="cell cell--head">
-  <p class="label">About</p>
+  <p class="num">(About)</p>
   <h1 class="title">${esc(site.name)}</h1>
   <p class="lead">${esc(site.role)}, based in ${esc(site.location)}.</p>
 </div>

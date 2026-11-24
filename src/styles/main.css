@@ -2,35 +2,31 @@
  * One white page, black type, and the photographs: nothing else carries
  * colour, and there are no rules, boxes or greys.
  *
- * Type: Heros carries names, titles and reading text; the monospace is kept
- * for small labels only (numbers, years, places, field names).
+ * Type: one voice. Everything the site says about itself is small, in
+ * capitals, in the monospace; hierarchy comes from position and space, not
+ * size. Heros sets only the few paragraphs meant to be read.
  *
  * Layout: a four-column grid from 1100 px (one spread per screen), two
  * columns from 768 px, one column below.
  */
 
 :root {
-  --edge: clamp(14px, 1.4vw, 24px);
+  --edge: clamp(12px, 1.05vw, 20px);
   --gap: var(--edge);
-
-  --label: clamp(11px, 0.74vw, 12px);
-  --small: clamp(13px, 0.95vw, 15px);
-  --text: clamp(15px, 1.08vw, 17px);
-  --lead: clamp(18px, 1.5vw, 24px);
-  --title: clamp(30px, 3.3vw, 54px);
+  --type: clamp(10.5px, 0.74vw, 12.5px);
+  --line: 1.32;
+  --read: clamp(13px, 0.92vw, 15px);
 
   /* Header height on large screens, and what a spread leaves for its images. Keep --area in step with AREA in templates/project.ts. */
-  --top: 5.5rem;
+  --top: 4.75rem;
   --area: calc(100svh - 7rem);
   --ease: cubic-bezier(0.2, 0.7, 0, 1);
 }
 
 @media (max-width: 767px) {
   :root {
-    --label: 12px;
-    --small: 14px;
-    --text: 16px;
-    --title: clamp(30px, 9vw, 40px);
+    --type: 12px;
+    --read: 15px;
   }
 }
 
@@ -49,7 +45,9 @@ html {
 
 body {
   margin: 0;
-  font: 400 var(--small) / 1.35 var(--grotesk);
+  font: 400 var(--type) / var(--line) var(--mono);
+  text-transform: uppercase;
+  font-variant-numeric: tabular-nums;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -144,57 +142,50 @@ picture {
 
 /* ------------------------------------------------------------------ Type */
 
-/* Small labels: numbers, years, places, field names. */
-.label {
-  font: 400 var(--label) / 1.35 var(--mono);
-  text-transform: uppercase;
-  letter-spacing: 0.02em;
-  font-variant-numeric: tabular-nums;
-}
-
-.title {
-  font-size: var(--title);
-  line-height: 1.02;
-  letter-spacing: -0.015em;
-  text-wrap: balance;
-}
-
+.label,
+.title,
 .lead {
-  font-size: var(--lead);
-  line-height: 1.28;
-  letter-spacing: -0.005em;
+  font: inherit;
+  text-transform: inherit;
 }
 
+.title,
+.lead {
+  max-width: 28ch;
+}
+
+/* A number or label above what it names: one and a half lines of air. */
+.num,
+.marker {
+  margin-bottom: calc(var(--line) * 1.5em);
+}
+
+/* The few paragraphs meant to be read. */
 .cell--read,
 .part__text,
-.contact__invite,
-.archive__intro {
-  font-size: var(--text);
-  line-height: 1.45;
+.about__text p:not([class]) {
+  font: 400 var(--read) / 1.42 var(--grotesk);
+  text-transform: none;
+  letter-spacing: 0.003em;
   max-width: 34em;
   text-wrap: pretty;
 }
 
 .cell--read p + p,
 .part__text p + p,
-.about__text > * + * {
+.about__text p + p {
   margin-top: 0.85em;
 }
 
-/* Label and value: field names in the monospace, values in Heros. */
+/* Label and value. */
 .facts > div {
   display: grid;
-  grid-template-columns: 6.5rem minmax(0, 1fr);
-  column-gap: 0.75rem;
-  align-items: baseline;
+  grid-template-columns: 9.5em minmax(0, 1fr);
+  column-gap: 1em;
 }
 
 .facts > div + div {
-  margin-top: 0.35rem;
-}
-
-.facts dd {
-  font-size: var(--small);
+  margin-top: 0.15em;
 }
 
 /* ---------------------------------------------------------------- Links */
@@ -204,8 +195,7 @@ picture {
 .facts a,
 .about__text a,
 .lead a,
-.viewer__open,
-.group__title a {
+.viewer__open{
   position: relative;
 }
 
@@ -218,9 +208,7 @@ picture {
 .lead a::before,
 .lead a::after,
 .viewer__open::before,
-.viewer__open::after,
-.group__title a::before,
-.group__title a::after {
+.viewer__open::after{
   position: absolute;
   top: 0;
   visibility: hidden;
@@ -230,8 +218,7 @@ picture {
 .facts a::before,
 .about__text a::before,
 .lead a::before,
-.viewer__open::before,
-.group__title a::before {
+.viewer__open::before{
   content: '(';
   right: 100%;
 }
@@ -240,8 +227,7 @@ picture {
 .facts a::after,
 .about__text a::after,
 .lead a::after,
-.viewer__open::after,
-.group__title a::after {
+.viewer__open::after{
   content: ')';
   left: 100%;
 }
@@ -249,6 +235,11 @@ picture {
 .bar__nav a[aria-current]::before,
 .bar__nav a[aria-current]::after {
   visibility: visible;
+}
+
+.bar .bar__back::before,
+.bar .bar__back::after {
+  content: none;
 }
 
 @media (hover: hover) {
@@ -261,20 +252,17 @@ picture {
   .lead a:hover::before,
   .lead a:hover::after,
   .viewer__open:hover::before,
-  .viewer__open:hover::after,
-  .group__title a:hover::before,
-  .group__title a:hover::after {
+  .viewer__open:hover::after{
     visibility: visible;
   }
 
   .film__play:hover,
-  .viewer__controls button:hover {
+  .viewer__controls button:hover,
+  .bar__back:hover {
     background: #000;
     color: #fff;
   }
 
-  .contact__email:hover,
-  .contact__wa:hover,
   .cell--next:hover .next__title {
     background: #000;
     color: #fff;
@@ -314,19 +302,15 @@ picture {
   grid-column: 2;
 }
 
-.bar__place .clock {
-  margin-left: 0.4em;
-}
-
-html:not(.js) .clock {
-  display: none;
+html:not(.js) .bar__place {
+  visibility: hidden;
 }
 
 .bar__nav {
   grid-column: 3 / 5;
   justify-self: end;
   display: flex;
-  gap: 1.6em;
+  gap: 2.2em;
 }
 
 /* Footer: name and year, the email; on Work a hint in between. */
@@ -419,16 +403,12 @@ html:not(.js) .clock {
   top: 0;
   left: 0;
   z-index: 3;
-  width: min(26rem, 44vw);
+  width: 28ch;
   pointer-events: none;
 }
 
-.stage__title {
-  font-size: clamp(18px, 1.7vw, 26px);
-  line-height: 1.15;
-  letter-spacing: -0.01em;
-  margin: 0.45em 0 0.35em;
-  text-wrap: balance;
+.stage__caption .label:first-child {
+  margin-bottom: calc(var(--line) * 1.5em);
 }
 
 /* Without scripts: one row that scrolls sideways, captioned above. */
@@ -570,15 +550,7 @@ html:not(.js) .clock {
 }
 
 .cell--head .title {
-  margin: 0.35em 0 0.6em;
-}
-
-.cell--head .lead {
-  max-width: 22em;
-}
-
-.marker {
-  margin-bottom: 1rem;
+  margin-bottom: calc(var(--line) * 1.5em);
 }
 
 /* Large screens: one spread per screen, on four columns. */
@@ -661,8 +633,9 @@ html:not(.js) .clock {
   /* A marker sits in the margin above a spread's images. */
   .spread > .marker {
     position: absolute;
-    top: calc(var(--top) - 1.9em);
+    top: calc(var(--top) - 2.2em);
     left: var(--edge);
+    margin: 0;
   }
 
   .spread--film {
@@ -858,11 +831,7 @@ html:not(.js) .clock {
 }
 
 .facts--credits > div + div {
-  margin-top: 0.5rem;
-}
-
-.cell--credits .label:first-child {
-  margin-bottom: 1rem;
+  margin-top: calc(var(--line) * 0.5em);
 }
 
 .cell--next {
@@ -870,9 +839,8 @@ html:not(.js) .clock {
   width: fit-content;
 }
 
-.cell--next > .label:first-child {
+.cell--next > .marker {
   display: block;
-  margin-bottom: 1rem;
 }
 
 .next__img {
@@ -888,12 +856,11 @@ html:not(.js) .clock {
   object-fit: contain;
 }
 
-.next__title {
+.next__title,
+.next__caption {
   display: block;
   width: fit-content;
-  font-size: var(--lead);
-  line-height: 1.2;
-  margin-bottom: 0.25rem;
+  max-width: 28ch;
 }
 
 .film {
@@ -923,77 +890,65 @@ html:not(.js) .clock {
 
 /* ---------------------------------------------------------------- Archive */
 
+/* One grid of equal boxes, as before; each image sits whole in its box, on the baseline. */
 .archive {
   padding: var(--top) var(--edge) 0;
 }
 
-.archive__head {
-  margin-bottom: 1rem;
-}
-
-.archive__intro {
-  margin-top: 0.5rem;
-}
-
-.group {
-  margin-top: 3rem;
-}
-
-.group__head {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  column-gap: 1rem;
-  row-gap: 0.2rem;
-  margin-bottom: 0.9rem;
-}
-
-.group__title {
-  font-size: var(--lead);
-  line-height: 1.2;
-}
-
-.group__images {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--gap);
+.archive__grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1.4rem var(--gap);
+  align-items: end;
 }
 
 .tile {
   display: block;
-  height: var(--tile, clamp(120px, 10vw, 170px));
-  aspect-ratio: var(--ar);
 }
 
-.tile img {
+/* One line for the project's name on its first image; kept empty on the others so the rows stay level. */
+.tile__label {
+  display: block;
+  min-height: calc(var(--line) * 2em);
+  margin-bottom: 0.5em;
+  display: flex;
+  align-items: flex-end;
+}
+
+.tile__img {
+  display: flex;
+  align-items: flex-end;
+  aspect-ratio: 3 / 4;
+}
+
+.tile__img img {
   width: 100%;
   height: 100%;
+  object-fit: contain;
+  object-position: 0 100%;
 }
 
 .pane {
   display: none;
 }
 
-@media (max-width: 767px) {
-  .archive {
-    padding-top: 6.5rem;
-  }
-
-  .group__images {
-    gap: 10px;
-  }
-
-  .tile {
-    --tile: 34vw;
+@media (min-width: 768px) {
+  .archive__grid {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
   }
 }
 
 @media (min-width: 1100px) {
   .archive {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) 30vw;
+    grid-template-columns: minmax(0, 1fr) 31vw;
     column-gap: calc(var(--gap) * 3);
     align-items: start;
+  }
+
+  .archive__grid {
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: 1.6rem calc(var(--gap) * 1.4);
   }
 
   .pane {
@@ -1019,9 +974,17 @@ html:not(.js) .clock {
   }
 
   .pane__title {
-    font-size: var(--lead);
-    line-height: 1.2;
-    margin: 0.8rem 0 0.25rem;
+    margin-top: calc(var(--line) * 1em);
+  }
+}
+
+@media (max-width: 767px) {
+  .archive {
+    padding-top: 6rem;
+  }
+
+  .tile__label {
+    min-height: calc(var(--line) * 3em);
   }
 }
 
@@ -1070,11 +1033,6 @@ html:not(.js) .clock {
   margin-top: 1rem;
 }
 
-.viewer__title {
-  font-size: var(--lead);
-  line-height: 1.2;
-}
-
 .viewer__open {
   width: fit-content;
   margin-top: 0.4rem;
@@ -1101,128 +1059,114 @@ html:not(.js) .clock {
   justify-content: flex-end;
 }
 
-.about__block .label {
-  margin-bottom: 0.6rem;
-}
-
-.about__block {
-  margin-top: 1.6rem;
-}
-
+.about__block,
 .about__contact {
   margin-top: 1.6rem;
 }
 
+.about__text .marker {
+  margin-bottom: calc(var(--line) * 0.75em);
+}
+
 /* ---------------------------------------------------------------- Contact */
 
+/* Label and value in columns across the top, white below, the work along the foot. */
 .contact {
-  padding: var(--top) var(--edge) 0;
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  column-gap: var(--gap);
+  grid-template-rows: auto 1fr auto;
+  min-height: calc(100svh - 4rem);
+  padding: var(--top) var(--edge) 0;
+  row-gap: 3rem;
+}
+
+.contact__cols {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 1.4rem var(--gap);
   align-content: start;
 }
 
-.contact__main {
-  grid-column: 1 / -1;
-  display: grid;
-  grid-template-columns: subgrid;
-  align-items: start;
+.contact__cols > p:not(.contact__label) {
+  max-width: 30ch;
 }
 
-.contact__main > * {
-  grid-column: 2 / -1;
+.contact__label {
+  white-space: nowrap;
 }
 
-.contact__main > .label {
-  grid-column: 1;
-  grid-row: 1;
-  padding-top: 0.9em;
+.contact__list li + li {
+  margin-top: 0.15em;
 }
 
-.contact__email {
-  width: fit-content;
-  margin-top: 1.6rem;
-  font-size: clamp(24px, 4.3vw, 66px);
-  line-height: 1.05;
-  letter-spacing: -0.02em;
-  overflow-wrap: anywhere;
+.contact__list a {
+  position: relative;
 }
 
-.contact__wa {
-  width: fit-content;
-  margin-top: 0.8rem;
-  font-size: var(--lead);
+.contact__list a::before,
+.contact__list a::after {
+  position: absolute;
+  top: 0;
+  visibility: hidden;
 }
 
-.contact__invite {
-  margin-top: 1.6rem;
+.contact__list a::before {
+  content: '(';
+  right: 100%;
 }
 
-.contact__facts {
-  grid-column: 2 / 4;
-  margin-top: 2.5rem;
+.contact__list a::after {
+  content: ')';
+  left: 100%;
+}
+
+@media (hover: hover) {
+  .contact__list a:hover::before,
+  .contact__list a:hover::after {
+    visibility: visible;
+  }
 }
 
 .contact__row {
-  grid-column: 1 / -1;
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--gap);
-  height: clamp(130px, 15vw, 230px);
-  overflow: hidden;
-  margin-top: 4rem;
+  display: none;
 }
 
-.contact__row li {
-  height: 100%;
-  aspect-ratio: var(--ar);
-}
+@media (min-width: 768px) {
+  .contact__row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--gap);
+    height: clamp(130px, 15vw, 230px);
+    overflow: hidden;
+    align-self: end;
+  }
 
-.contact__row a,
-.contact__row img {
-  display: block;
-  width: 100%;
-  height: 100%;
+  .contact__row li {
+    height: 100%;
+    aspect-ratio: var(--ar);
+  }
+
+  .contact__row a,
+  .contact__row img {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
 }
 
 @media (min-width: 1100px) {
-  .contact {
-    min-height: calc(100svh - 5rem);
-    grid-template-rows: auto auto 1fr;
-  }
-
-  .contact__row {
-    align-self: end;
+  .contact__cols {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
   }
 }
 
 @media (max-width: 767px) {
   .contact {
-    padding-top: 6.5rem;
-    display: block;
+    padding-top: 6rem;
+    min-height: 0;
   }
 
-  .contact__main {
-    display: block;
-  }
-
-  .contact__main > .label {
-    padding-top: 0;
-    margin-bottom: 0.8rem;
-  }
-
-  .contact__email {
-    display: block;
-    font-size: clamp(20px, 6.4vw, 30px);
-  }
-
-  .contact__wa {
-    display: block;
-  }
-
-  .contact__row {
-    display: none;
+  .contact__label {
+    white-space: normal;
   }
 }
 
@@ -1234,7 +1178,7 @@ html:not(.js) .clock {
 }
 
 .missing .title {
-  margin: 0.35em 0 0.6em;
+  margin-bottom: calc(var(--line) * 1.5em);
 }
 
 /* ------------------------------------------------------- Motion and print */

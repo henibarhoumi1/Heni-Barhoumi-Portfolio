@@ -21,18 +21,20 @@ export function renderContact(ctx: BuildContext): string {
     .join('');
 
   const main = `<main id="main" class="contact">
-<div class="contact__main">
-  <p class="label">Contact</p>
-  <h1 class="title">${esc(site.contact.action)}</h1>
-  ${email ? `<a class="contact__email" href="mailto:${esc(email)}">${esc(email)}</a>` : ''}
-  ${whatsapp ? `<a class="contact__wa" href="${wa}" rel="noopener" target="_blank">WhatsApp <span class="nowrap">${esc(whatsapp)}</span></a>` : ''}
+<h1 class="sr">Contact</h1>
+<div class="contact__cols">
+  <p class="contact__label">(${esc(site.contact.action)})</p>
+  <ul class="contact__list">
+    ${email ? `<li><a href="mailto:${esc(email)}">${esc(email)}</a></li>` : ''}
+    ${whatsapp ? `<li><a href="${wa}" rel="noopener" target="_blank">WhatsApp <span class="nowrap">${esc(whatsapp)}</span></a></li>` : ''}
+    <li><a href="${esc(instagram.href)}" rel="noopener" target="_blank">Instagram ${esc(instagram.handle)}</a></li>
+    ${site.elsewhere.map((e) => `<li><a href="${esc(e.href)}" rel="noopener" target="_blank">${esc(e.label)}</a></li>`).join('')}
+  </ul>
+  <p class="contact__label">(Based in)</p>
+  <p>${esc(site.location)}<br><span class="nowrap">${localTime(ctx)} local time</span></p>
+  <p class="contact__label">(Work)</p>
   <p class="contact__invite">${esc(site.contact.invite)}</p>
 </div>
-<dl class="facts contact__facts">
-  <div><dt class="label">Based in</dt><dd>${esc(site.location)}, <span class="nowrap">${localTime(ctx)} local time</span></dd></div>
-  <div><dt class="label">Instagram</dt><dd><a href="${esc(instagram.href)}" rel="noopener" target="_blank">${esc(instagram.handle)}</a></dd></div>
-  ${site.elsewhere.map((e) => `<div><dt class="label">${esc(e.note ?? 'Elsewhere')}</dt><dd><a href="${esc(e.href)}" rel="noopener" target="_blank">${esc(e.label)}</a></dd></div>`).join('')}
-</dl>
 <ul class="contact__row">${row}</ul>
 </main>`;
 

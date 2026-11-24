@@ -54,11 +54,11 @@ if(el)el.style.viewTransitionName='hero';});
 })()`;
 
 /** Back returns to the page you came from on this site, otherwise to Work. */
-export const back = (): string => `<a href="/" class="bar__back" data-back>Back</a>`;
+export const back = (): string => `<a href="/" class="bar__back" data-back>(Back)</a>`;
 
 /** Where Heni is, and the time there. */
 export const place = (ctx: BuildContext): string =>
-  `<p class="bar__place">${esc(ctx.site.location)} <span class="label clock">${localTime(ctx)}</span></p>`;
+  `<p class="bar__place">(${esc(ctx.site.location.split(',')[0] ?? '')} <span class="clock">${localTime(ctx)}</span>)</p>`;
 
 const srcset = (variants: { url: string; width: number }[]) => variants.map((v) => `${v.url} ${v.width}w`).join(', ');
 
@@ -128,7 +128,7 @@ ${data.map((d) => `<script type="application/ld+json">${JSON.stringify(d).replac
 ${options.main}
 <footer class="bar bar--bottom">
   <p class="bar__copy">©&nbsp;${ctx.year} ${esc(site.name)}</p>
-  ${options.hint ? `<p class="bar__hint label">${options.hint}</p>` : ''}
+  ${options.hint ? `<p class="bar__hint">${options.hint}</p>` : ''}
   ${site.contact.email ? `<a class="bar__mail" href="mailto:${esc(site.contact.email)}">${esc(site.contact.email)}</a>` : ''}
 </footer>
 </body>

@@ -190,7 +190,7 @@ export function initStage(): void {
     if (item.project !== activeProject) {
       activeProject = item.project;
       const p = projects[item.project] as Project;
-      if (numEl) numEl.textContent = p.number;
+      if (numEl) numEl.textContent = `(${p.number})`;
       if (titleEl) titleEl.textContent = p.title;
       if (textEl) textEl.textContent = p.caption;
       if (live) live.textContent = `${p.title}. ${p.caption}.`;

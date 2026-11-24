@@ -43,14 +43,14 @@ function film(f: Film, entry: Entry): string {
 }
 
 /** A small numbered label, used to mark the parts of a case study. */
-const marker = (n: number | undefined, label: string) => (n === undefined ? '' : `<p class="label marker">${String(n).padStart(2, '0')} ${esc(label)}</p>`);
+const marker = (n: number | undefined, label: string) => (n === undefined ? '' : `<p class="marker">(${String(n).padStart(2, '0')}) ${esc(label)}</p>`);
 
 function spread(s: Page, entry: Entry, mark = ''): string {
   switch (s.kind) {
     case 'opening':
       return `<section class="spread spread--opening" aria-labelledby="title">
 <div class="cell cell--head">
-  <p class="label">${entry.number}</p>
+  <p class="num">(${entry.number})</p>
   <h1 class="title" id="title">${esc(entry.title)}</h1>
   ${facts(entry)}
 </div>
@@ -114,14 +114,14 @@ ${sections
 
   const end = `<section class="spread spread--end" aria-label="Credits and next project">
 <div class="cell cell--credits">
-  ${isCase ? marker(creditsNumber, 'Credits') : '<p class="label">Credits</p>'}
+  ${isCase ? marker(creditsNumber, 'Credits') : '<p class="marker">(Credits)</p>'}
   ${credits(entry)}
 </div>
 <a class="cell cell--next" href="${next.path}">
-  <span class="label">Next</span>
+  <span class="marker">(Next)</span>
   <span class="next__img" style="--ar:${(next.cover.width / next.cover.height).toFixed(4)}">${picture(next.cover, { alt: '', sizes: '(max-width: 767px) 40vw, 12vw' })}</span>
   <span class="next__title">${esc(next.title)}</span>
-  <span class="label">${esc(next.caption)}</span>
+  <span class="next__caption">${esc(next.caption)}</span>
 </a>
 </section>`;
 

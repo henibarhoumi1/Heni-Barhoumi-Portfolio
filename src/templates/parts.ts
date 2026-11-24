@@ -16,14 +16,14 @@ export function facts(entry: Entry): string {
     ['Type', entry.type],
     [entry.roles.length > 1 ? 'Roles' : 'Role', entry.roles.join(', ')],
   ];
-  return `<dl class="facts">${rows.map(([k, v]) => `<div><dt class="label">${esc(k)}</dt><dd>${esc(v)}</dd></div>`).join('')}</dl>`;
+  return `<dl class="facts">${rows.map(([k, v]) => `<div><dt>(${esc(k)})</dt><dd>${esc(v)}</dd></div>`).join('')}</dl>`;
 }
 
 export function credits(entry: Entry): string {
   return `<dl class="facts facts--credits">${entry.credits
     .map(
       (c) =>
-        `<div><dt class="label">${esc(c.role)}</dt><dd>${c.href ? `<a href="${esc(c.href)}" rel="noopener" target="_blank">${esc(c.name)}</a>` : esc(c.name)}</dd></div>`,
+        `<div><dt>(${esc(c.role)})</dt><dd>${c.href ? `<a href="${esc(c.href)}" rel="noopener" target="_blank">${esc(c.name)}</a>` : esc(c.name)}</dd></div>`,
     )
     .join('')}</dl>`;
 }

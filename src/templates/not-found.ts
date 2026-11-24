@@ -3,7 +3,7 @@ import type { BuildContext } from './types.ts';
 
 export function renderNotFound(ctx: BuildContext): string {
   const main = `<main id="main" class="missing">
-  <p class="label">404</p>
+  <p class="num">(404)</p>
   <h1 class="title">This page is not here.</h1>
   <p class="lead"><a href="/">Back to the work</a></p>
 </main>`;

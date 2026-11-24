@@ -5,35 +5,24 @@ import { page } from './layout.ts';
 import type { BuildContext } from './types.ts';
 
 /**
- * Archive: every image of every project, grouped under its project, each in
- * its own proportions. On large screens pointing at one shows it large in
+ * Archive: every image of every project in one grid, each whole in its box;
+ * the first image of each project carries its number and title. On large screens pointing at one shows it large in
  * the pane on the right; choosing it opens the project. On smaller screens
  * choosing one opens it large on its own, with the way to its project.
  */
 
 const webp = (frame: Frame) => frame.webp.map((v) => `${v.url} ${v.width}w`).join(', ');
 
-function tile(entry: Entry, frame: Frame): string {
-  return `<li><a class="tile" href="${entry.path}" data-preview="${webp(frame)}" data-src="${frame.jpg.url}" data-w="${frame.width}" data-h="${frame.height}" data-cap="${capOf(frame)}" data-title="${esc(entry.title)}" data-caption="${esc(entry.caption)}" data-alt="${esc(entry.alt(frame))}" style="--ar:${(frame.width / frame.height).toFixed(4)}">
-${picture(frame, { alt: entry.alt(frame), sizes: '(max-width: 767px) 40vw, 14vw' })}
+function tile(entry: Entry, frame: Frame, first: boolean): string {
+  return `<li><a class="tile" href="${entry.path}" data-preview="${webp(frame)}" data-src="${frame.jpg.url}" data-w="${frame.width}" data-h="${frame.height}" data-cap="${capOf(frame)}" data-title="${esc(entry.title)}" data-caption="${esc(entry.caption)}" data-alt="${esc(entry.alt(frame))}">
+<span class="tile__label"${first ? '' : ' aria-hidden="true"'}>${first ? `(${entry.number}) ${esc(entry.title)}` : ''}</span>
+<span class="tile__img">${picture(frame, { alt: entry.alt(frame), sizes: '(max-width: 767px) 30vw, (max-width: 1099px) 18vw, 9vw' })}</span>
 </a></li>`;
 }
 
 export function renderArchive(ctx: BuildContext): string {
-  const groups = ctx.entries
-    .map(
-      (entry) => `<section class="group" aria-labelledby="g-${entry.slug}">
-<header class="group__head">
-  <span class="label">${entry.number}</span>
-  <h2 class="group__title" id="g-${entry.slug}"><a href="${entry.path}">${esc(entry.title)}</a></h2>
-  <span class="label group__caption">${esc(entry.caption)}</span>
-</header>
-<ul class="group__images">
-${entry.frames.map((frame) => tile(entry, frame)).join('\n')}
-</ul>
-</section>`,
-    )
-    .join('\n');
+  // One continuous grid; each project's first image carries its number and title.
+  const tiles = ctx.entries.flatMap((entry) => entry.frames.map((frame, i) => tile(entry, frame, i === 0))).join('\n');
 
   const first = ctx.entries[0];
   const lead = first?.cover;
@@ -65,11 +54,10 @@ ${entry.frames.map((frame) => tile(entry, frame)).join('\n')}
 
   const main = `<main id="main" class="archive" data-archive>
 <div class="archive__list">
-<header class="archive__head">
-  <h1 class="title">Archive</h1>
-  <p class="archive__intro">Every series, image by image.</p>
-</header>
-${groups}
+<h1 class="sr">Archive</h1>
+<ol class="archive__grid">
+${tiles}
+</ol>
 </div>
 ${pane}
 ${viewer}
